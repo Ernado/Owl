@@ -46,7 +46,7 @@
             this.BookListPanel.Location = new System.Drawing.Point(0, 0);
             this.BookListPanel.Name = "BookListPanel";
             this.BookListPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.BookListPanel.Size = new System.Drawing.Size(564, 287);
+            this.BookListPanel.Size = new System.Drawing.Size(322, 165);
             this.BookListPanel.TabIndex = 0;
             // 
             // BookList
@@ -55,7 +55,7 @@
             this.BookList.FormattingEnabled = true;
             this.BookList.Location = new System.Drawing.Point(5, 5);
             this.BookList.Name = "BookList";
-            this.BookList.Size = new System.Drawing.Size(554, 277);
+            this.BookList.Size = new System.Drawing.Size(312, 155);
             this.BookList.TabIndex = 0;
             this.BookList.SelectedIndexChanged += new System.EventHandler(this.BookListSelectedIndexChanged);
             this.BookList.DoubleClick += new System.EventHandler(this.BookListDoubleClick);
@@ -66,14 +66,14 @@
             this.DialogPanel.Controls.Add(this.okButton);
             this.DialogPanel.Controls.Add(this.openCancelButton);
             this.DialogPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.DialogPanel.Location = new System.Drawing.Point(0, 293);
+            this.DialogPanel.Location = new System.Drawing.Point(0, 168);
             this.DialogPanel.Name = "DialogPanel";
-            this.DialogPanel.Size = new System.Drawing.Size(564, 49);
+            this.DialogPanel.Size = new System.Drawing.Size(322, 49);
             this.DialogPanel.TabIndex = 1;
             // 
             // deleteButton
             // 
-            this.deleteButton.Location = new System.Drawing.Point(472, 13);
+            this.deleteButton.Location = new System.Drawing.Point(205, 13);
             this.deleteButton.Name = "deleteButton";
             this.deleteButton.Size = new System.Drawing.Size(75, 23);
             this.deleteButton.TabIndex = 2;
@@ -83,7 +83,7 @@
             // 
             // okButton
             // 
-            this.okButton.Location = new System.Drawing.Point(310, 13);
+            this.okButton.Location = new System.Drawing.Point(43, 13);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 1;
@@ -94,7 +94,7 @@
             // openCancelButton
             // 
             this.openCancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.openCancelButton.Location = new System.Drawing.Point(391, 13);
+            this.openCancelButton.Location = new System.Drawing.Point(124, 13);
             this.openCancelButton.Name = "openCancelButton";
             this.openCancelButton.Size = new System.Drawing.Size(75, 23);
             this.openCancelButton.TabIndex = 0;
@@ -108,7 +108,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.openCancelButton;
-            this.ClientSize = new System.Drawing.Size(564, 342);
+            this.ClientSize = new System.Drawing.Size(322, 217);
             this.Controls.Add(this.DialogPanel);
             this.Controls.Add(this.BookListPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
