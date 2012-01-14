@@ -208,6 +208,7 @@
             this.OpenPageMenuItem.Name = "OpenPageMenuItem";
             this.OpenPageMenuItem.Size = new System.Drawing.Size(205, 22);
             this.OpenPageMenuItem.Text = "Открыть";
+            this.OpenPageMenuItem.Click += new System.EventHandler(this.OpenPageMenuItemClick);
             // 
             // CreatePageMenuItem
             // 

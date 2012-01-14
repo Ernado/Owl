@@ -137,5 +137,10 @@ namespace Owl
                 saveBookMenuItem.Enabled = false;
             }
         }
+
+        private void OpenPageMenuItemClick(object sender, EventArgs e)
+        {
+            new PageOpen(this).Show();
+        }
     }
 }
