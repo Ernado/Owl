@@ -90,6 +90,20 @@ namespace Owl.DataBase.Domain
             point.Polygon = this;
             Points.Add(point);
         }
+
+        /// <summary>
+        /// Добавляет список точек к полигону. (Предварительно обнуляя исходный)
+        /// </summary>
+        /// <param name="points">Точки для добавления к полигону.</param>
+        public void LoadPointList (IEnumerable<System.Drawing.Point> points)
+        {
+            _points.Clear();
+            foreach (var point in points)
+            {
+                var newpoint = new Point {X = point.X, Y = point.Y};
+                AddPoint(newpoint);
+            }
+        }
     }
     
     /// <summary>
