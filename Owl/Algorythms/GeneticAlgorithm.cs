@@ -19,7 +19,7 @@ namespace Owl.Algorythms
         private List<string> _population;
         private readonly int _populationSize;
         private readonly double[] _ranges;
-        private List<Line> _bestResult;
+        private List<AnalyzableLine> _bestResult;
 
         /// <summary>
         /// Инициализирует объект класса GeneticAlgorithm, создавая популяцию из случайных хромосом.
@@ -197,12 +197,12 @@ namespace Owl.Algorythms
         private void GenerateFitnesses()
         {
             //Проитерируем по всем хромосомам.
-            var results = new List<Line>[_populationSize];
+            var results = new List<AnalyzableLine>[_populationSize];
             for (int i = 0; i < _populationSize; i++)
             {
                 //bool isString = false;
                 int summHeight = 0;
-                var lines = new List<Line>();
+                var lines = new List<AnalyzableLine>();
                 int y = 0;
                 while (y < _points.Length)
                 {
@@ -212,7 +212,7 @@ namespace Owl.Algorythms
                         //Начало строки  - текущая строчка массива.
                         int start = y;
 
-                        var line = new Line(start, 0);
+                        var line = new AnalyzableLine(start, 0);
 
                         //Произведем итерации по строчкам до тех пор, пока функция
                         //не перестанет быть 'True'
@@ -312,7 +312,7 @@ namespace Owl.Algorythms
             return (1/_factors[0].Value + (_factors[2].Value)/range) > 0;
         }
 
-        public List<Line> Solve()
+        public List<AnalyzableLine> Solve()
         {
             int iterations = 0;
             double previousMaxFitness = 0.0;
