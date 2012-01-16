@@ -23,7 +23,7 @@ namespace Owl.Repositories
             return path;
         }
 
-        public static GraphicsPath GeneratePathFromPoints(List<Owl.DataBase.Domain.Point> points)
+        public static GraphicsPath GeneratePathFromPoints(List<DataBase.Domain.Point> points)
         {
             var path = new GraphicsPath();
 
