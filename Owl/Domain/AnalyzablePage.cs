@@ -18,7 +18,7 @@ namespace Owl.Domain
     {
         private readonly double _ratio;
         private bool[,] _bit;
-        private IList<Line> _lines = new List<Line>();
+        private IList<AnalyzableLine> _lines = new List<AnalyzableLine>();
         private Bitmap _original;
 
         /// <summary>
@@ -135,16 +135,16 @@ namespace Owl.Domain
         /// <summary>
         /// ¬озвращает линии.
         /// </summary>
-        public IList<Line> Lines
+        public IList<AnalyzableLine> Lines
         {
             get { return _lines; }
             set { _lines = value; }
         }
 
-        public void AddLine(Line line)
+        public void AddLine(AnalyzableLine analyzableLine)
         {
-            line.AnalyzablePage = this;
-            Lines.Add(line);
+            analyzableLine.AnalyzablePage = this;
+            Lines.Add(analyzableLine);
         }
 
         public int HeightRange ()
@@ -277,7 +277,7 @@ namespace Owl.Domain
                 summHeight = 0;
 
                 //ќчищаем список строк текста.
-                _lines = new List<Line>();
+                _lines = new List<AnalyzableLine>();
 
                 //—овершим итерации по всем строкам бинарного массива.
                 while (l < (_original.Height - 1))
@@ -290,7 +290,7 @@ namespace Owl.Domain
                         int start = l;
 
                         //—оздадим строку в месте, где количество точек больше минимального
-                        var line = new Line(start, 0);
+                        var line = new AnalyzableLine(start, 0);
 
                         //ѕроизведем итерации по строчкам до тех пор, пока количество точек
                         //не перестанет быть минимальным и не будет достигнут конец изображени€.
@@ -331,7 +331,7 @@ namespace Owl.Domain
                 throw new Exception("No lines found");
 
             //”далим все строчки, высота которых меньше средней
-            List<Line> newlines = _lines.Where(line => line.Height > medianHeight).ToList();
+            List<AnalyzableLine> newlines = _lines.Where(line => line.Height > medianHeight).ToList();
 
             _lines = newlines;
         }
@@ -355,7 +355,7 @@ namespace Owl.Domain
 
             try
             {
-                foreach (Line line in _lines)
+                foreach (AnalyzableLine line in _lines)
                 {
                     var rectangle = new Rectangle(1, line.Start, bitmap.Width - 2, line.Height);
                     graphicOverlay.DrawRectangle(pen, rectangle);
@@ -377,7 +377,7 @@ namespace Owl.Domain
             var page = this;
             var factors = new List<GrayCode> { new GrayCode(0, 2, 20) };
             var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factors, 20, 8);
-            page.Lines = new List<Line>();
+            page.Lines = new List<AnalyzableLine>();
             page = new PageSegmentator(config, page).SegmentedPage();
             Lines = page.Lines;
         }
@@ -387,28 +387,28 @@ namespace Owl.Domain
     /// <summary>
     ///  ласс строки.
     /// </summary>
-    public class Line
+    public class AnalyzableLine
     {
         private int _height;
         private int _start;
         private AnalyzablePage _analyzablePage;
-        private List<Word> _words = new List<Word>();
+        private List<AnalyzableWord> _words = new List<AnalyzableWord>();
 
         /// <summary>
         /// »нициализирует класс строки Line с данными начала строки и еЄ высоты.
         /// </summary>
         /// <param name="start">Ќачало строки.</param>
         /// <param name="height">¬ысота.</param>
-        public Line(int start, int height)
+        public AnalyzableLine(int start, int height)
         {
             _start = start;
             _height = height;
         }
 
-        public void AddWord (Word word)
+        public void AddWord (AnalyzableWord analyzableWord)
         {
-            word.Line = this;
-            _words.Add(word);
+            analyzableWord.AnalyzableLine = this;
+            _words.Add(analyzableWord);
         }
 
 
@@ -419,7 +419,7 @@ namespace Owl.Domain
         }
 
 
-        public Line()
+        public AnalyzableLine()
         {
             _start = 0;
             _height = 0;
@@ -478,19 +478,19 @@ namespace Owl.Domain
     /// <summary>
     ///  ласс слова. 
     /// </summary> 
-    public class Word
+    public class AnalyzableWord
     {
         private readonly int _start;
         private readonly int _width;
-        private Line _line;
+        private AnalyzableLine _analyzableLine;
 
-        public Line Line
+        public AnalyzableLine AnalyzableLine
         {
-            get { return _line; }
-            set { _line = value; }
+            get { return _analyzableLine; }
+            set { _analyzableLine = value; }
         }
 
-        protected Word(int start, int width)
+        protected AnalyzableWord(int start, int width)
         {
             _start = start;
             _width = width;
@@ -503,8 +503,8 @@ namespace Owl.Domain
         {
             get
             {
-                var original = _line.AnalyzablePage.Original;
-                var rectangle = new Rectangle(_line.Start, _start, _width, _line.Height);
+                var original = _analyzableLine.AnalyzablePage.Original;
+                var rectangle = new Rectangle(_analyzableLine.Start, _start, _width, _analyzableLine.Height);
                 return original.Clone(rectangle, original.PixelFormat);
             }
         }
