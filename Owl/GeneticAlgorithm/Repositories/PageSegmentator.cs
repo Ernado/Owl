@@ -34,7 +34,7 @@ namespace Owl.GeneticAlgorithm.Repositories
                 {
                     var start = (int)factors[i].Value;
                     var height = (int)factors[i + 1].Value - start;
-                    var line = new Line(start, height);
+                    var line = new AnalyzableLine(start, height);
                     page.AddLine(line);
                 }
                 return page;
