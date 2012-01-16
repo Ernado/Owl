@@ -25,6 +25,15 @@ namespace Owl
             InitializeComponent();
         }
 
+        public void LoadLine (Line line)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadWord(Word word)
+        {
+            throw new NotImplementedException();
+        }
   
         public void LoadBook (Book book)
         {

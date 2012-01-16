@@ -190,6 +190,9 @@
     <EmbeddedResource Include="PageCreate.resx">
       <DependentUpon>PageCreate.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PageOpen.resx">
+      <DependentUpon>PageOpen.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
