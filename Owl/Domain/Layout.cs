@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using Owl.DataBase.Domain;
+using Owl.Repositories;
 using Point = System.Drawing.Point;
 
 namespace Owl.Domain
@@ -18,6 +19,8 @@ namespace Owl.Domain
         /// </summary>
         public readonly List<Figure> Figures = new List<Figure>();
 
+        public Pen SelectPen;
+
         public Graphics Canvas { get; private set; }
 
         public Layout(Page page, Graphics canvas)
@@ -30,6 +33,12 @@ namespace Owl.Domain
         {
             Canvas = graphics;
         }
+
+        public void AddFigure (Figure figure)
+        {
+            figure.Layout = this;
+            Figures.Add(figure);
+        }
     }
 
     /// <summary>
@@ -39,10 +48,9 @@ namespace Owl.Domain
     {
         //readonly SerializableGraphicsPath _serializablePath = new SerializableGraphicsPath();
         //карандаш отрисовки линий
-        public static Pen pen = Pens.Black;
         protected GraphicsPath Path { get; set; }
 
-        protected Layout _layout;
+        public Layout Layout { get; set; }
 
 
         /// <summary>
@@ -55,8 +63,9 @@ namespace Owl.Domain
         /// <summary>
         /// Отрисовка фигуры.
         /// </summary>
-        /// <param name="gr">Поверхность рисования.</param>
-        public abstract void Draw();
+        /// <param name="brush">Заливка</param>
+        /// <param name="pen">Контур</param>
+        public abstract void Draw(Brush brush, Pen pen);
 
         /// <summary>
         /// Получение маркеров.
@@ -74,7 +83,6 @@ namespace Owl.Domain
         //размер новой фигуры, по умолчанию
         //protected static int DefaultSize = 40;
         //заливка фигуры
-        public static Brush brush = Brushes.White;
 
 
         public Point Location;
@@ -103,6 +111,16 @@ namespace Owl.Domain
                 RectangleF bounds = Path.GetBounds();
                 return new RectangleF(bounds.Left, bounds.Top, bounds.Width, bounds.Height);
             }
+        }
+
+        /// <summary>
+        /// Рисует границу
+        /// </summary>
+        public void DrawBounds ()
+        {
+            var bounds = Bounds;
+            Layout.Canvas.DrawRectangle(Layout.SelectPen, bounds.Left - 2, 
+                bounds.Top - 2, bounds.Width + 4, bounds.Height + 4);
         }
 
         //размер прямоугольника вокруг фигуры
@@ -149,14 +167,14 @@ namespace Owl.Domain
         }
 
         //отрисовка фигуры
-        public override void Draw()
+        public override void Draw(Brush brush, Pen pen)
         {
             //gr.TranslateTransform(location.X, location.Y);
-            _layout.Canvas.FillPath(brush, Path);
-            _layout.Canvas.DrawPath(pen, Path);
+            Layout.Canvas.FillPath(brush, Path);
+            Layout.Canvas.DrawPath(pen, Path);
             //if (!string.IsNullOrEmpty(text))
             //gr.DrawString(text, SystemFonts.DefaultFont, Brushes.Black, textRect, StringFormat);
-            _layout.Canvas.ResetTransform();
+            Layout.Canvas.ResetTransform();
         }
 
         //создание маркера для изменения размера
@@ -194,11 +212,11 @@ namespace Owl.Domain
             return true;
         }
 
-        public override void Draw()
+        public override void Draw(Brush brush1, Pen pen1)
         {
-            _layout.Canvas.DrawRectangle(Pens.Black, Location.X - DefaultSize, Location.Y - DefaultSize, DefaultSize * 2,
+            Layout.Canvas.DrawRectangle(Pens.Black, Location.X - DefaultSize, Location.Y - DefaultSize, DefaultSize * 2,
                              DefaultSize*2);
-            _layout.Canvas.FillRectangle(Brushes.Red, Location.X - DefaultSize, Location.Y - DefaultSize, DefaultSize * 2,
+            Layout.Canvas.FillRectangle(Brushes.Red, Location.X - DefaultSize, Location.Y - DefaultSize, DefaultSize * 2,
                              DefaultSize*2);
         }
 
@@ -272,14 +290,7 @@ namespace Owl.Domain
         public SolidFigure From;
         public SolidFigure To;
 
-        public override void Draw()
-        {
-            if (From == null || To == null)
-                return;
 
-            RecalcPath();
-            _layout.Canvas.DrawPath(pen, Path);
-        }
 
         public override bool Intersects(Point p)
         {
@@ -288,6 +299,15 @@ namespace Owl.Domain
 
             RecalcPath();
             return Path.IsOutlineVisible(p, ClickPen);
+        }
+
+        public override void Draw(Brush brush, Pen pen)
+        {
+            if (From == null || To == null)
+                return;
+
+            RecalcPath();
+            Layout.Canvas.DrawPath(pen, Path);
         }
 
         protected virtual void RecalcPath()
@@ -313,6 +333,54 @@ namespace Owl.Domain
             markers.Add(m2);
 
             return markers;
+        }
+    }
+
+    public class UnclosedPathFigure : Figure
+    {
+        private List<Point> Points { get; set; }
+
+        public Point FirstPoint { get { return Points[0]; } }
+
+        public void AddPoint (Point point)
+        {
+            Points.Add(point);
+        }
+
+        public void ReplaceLastPoint(Point point)
+        {
+            Points.Insert(Points.Count-1,point);
+        }
+
+        public void DeleteLastPoint ()
+        {
+            Points.RemoveAt(Points.Count-1);
+        }
+
+        public  bool IsNearStart (Point p)
+        {
+            var startPoint = Points[0];
+            return (Math.Abs(startPoint.X - p.X) < 2) && (Math.Abs(startPoint.Y - p.Y) < 2);
+        }
+
+        public override bool Intersects(Point p)
+        {
+            return false;
+        }
+
+        public GraphicsPath GeneratePath()
+        {
+            return Functions.GeneratePathFromPoints(Points);
+        }
+
+        public override void Draw(Brush brush, Pen pen)
+        {
+            Layout.Canvas.DrawPath(pen, Path);
+        }
+
+        public override List<Marker> CreateMarkers(Layout diagram)
+        {
+            throw new NotImplementedException();
         }
     }
 }
