@@ -92,7 +92,7 @@ namespace Owl.DataBase.Domain
             Points.Add(point);
         }
 
-        public List<System.Drawing.Point> ConvertToDrawingPoints ()
+        public virtual List<System.Drawing.Point> ConvertToDrawingPoints()
         {
             return Points.Select(point => new System.Drawing.Point
                                               {
@@ -104,7 +104,7 @@ namespace Owl.DataBase.Domain
         /// Добавляет список точек к полигону. (Предварительно обнуляя исходный)
         /// </summary>
         /// <param name="points">Точки для добавления к полигону.</param>
-        public void LoadPointList (IEnumerable<System.Drawing.Point> points)
+        public virtual void LoadPointList (IEnumerable<System.Drawing.Point> points)
         {
             _points.Clear();
             foreach (var point in points)
