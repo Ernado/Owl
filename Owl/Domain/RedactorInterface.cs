@@ -76,7 +76,8 @@ namespace Owl.Domain
             canvas.SmoothingMode = SmoothingMode.HighQuality;
             WordConfig = new GlyphConfig(config.WordBrush,config.WordPen, redactor,this);
             LineConfig = new GlyphConfig(config.LineBrush, config.LinePen, redactor, this);
-            
+
+            RedactorState = RedactorStates.Default; 
             MainGlyph = new CanvasGlyph(WordConfig);
         }
 
@@ -89,11 +90,6 @@ namespace Owl.Domain
             protected VectorRedactor VectorRedactor;
             protected Glyph MainGlyph;
             protected GlyphConfig Config;
-
-            protected Glyph()
-            {
-                throw new NotImplementedException();
-            }
 
             public abstract void ProcessMove(Point location);
 
@@ -195,6 +191,7 @@ namespace Owl.Domain
                     path.AddPath(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints()), false);
                 }
                 Figure = new SolidFigure(path);
+                Childs = new List<Glyph>();
             }
 
             public override void Move(int dx, int dy)
@@ -228,6 +225,7 @@ namespace Owl.Domain
                 Line = line;
                 var path = Functions.GeneratePathFromPoints(Line.Polygon.ConvertToDrawingPoints());
                 Figure = new SolidFigure(path);
+                Childs = new List<Glyph>();
             }
 
             public override void ProcessMove(Point offset)
@@ -258,6 +256,7 @@ namespace Owl.Domain
             public CanvasGlyph (GlyphConfig config)
             {
                 Config = config;
+                Childs = new List<Glyph>();
             }
 
             public override void ProcessMove(Point location)
