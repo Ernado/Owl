@@ -16,6 +16,7 @@ namespace Owl.Domain
     {
         public enum RedactorStates
         {
+            Default,
             Dragging,
             CreatingLine,
             CreatingWord
@@ -38,8 +39,18 @@ namespace Owl.Domain
         private List<Marker> ActiveMarkers { get; set; }
         private static Glyph ActiveGlyph { get; set; }
         private CanvasGlyph MainGlyph { get; set; }
+        public GlyphConfig WordConfig { get; private set; }
+        public GlyphConfig LineConfig { get; private set; }
 
         private static List<Glyph> Glyphs { get; set; } 
+
+        public class VectorRedactorConfig
+        {
+            public Brush LineBrush { get; set; }
+            public Pen LinePen { get; set; }
+            public Brush WordBrush { get; set; }
+            public Pen WordPen { get; set; }
+        }
 
         public class GlyphConfig
         {
@@ -57,12 +68,16 @@ namespace Owl.Domain
             }
         }
 
-        public VectorRedactor(Graphics canvas, Redactor redactor)
+        public VectorRedactor(Graphics canvas, Redactor redactor, VectorRedactorConfig config)
         {
             Canvas = canvas;
             _redactor = redactor;
             _layout = new Layout(canvas);
             canvas.SmoothingMode = SmoothingMode.HighQuality;
+            WordConfig = new GlyphConfig(config.WordBrush,config.WordPen, redactor,this);
+            LineConfig = new GlyphConfig(config.LineBrush, config.LinePen, redactor, this);
+            
+            MainGlyph = new CanvasGlyph(WordConfig);
         }
 
         abstract class Glyph
@@ -79,6 +94,8 @@ namespace Owl.Domain
             {
                 throw new NotImplementedException();
             }
+
+            public abstract void ProcessMove(Point location);
 
             protected abstract bool Intersects(Point point);
 
@@ -168,9 +185,9 @@ namespace Owl.Domain
         {
             public Word Word { get; set; }
 
-            public WordGlyph(Word word, GlyphConfig config)
+            public WordGlyph(Word word)
             {
-                Config = config;
+                Config = VectorRedactor.WordConfig;
                 Word = word;
                 var path = new GraphicsPath();
                 foreach (var polygon in Word.Polygons)
@@ -183,6 +200,11 @@ namespace Owl.Domain
             public override void Move(int dx, int dy)
             {
                 Figure.Move(dx,dy);
+            }
+
+            public override void ProcessMove(Point offset)
+            {
+                Move(offset.X, offset.Y);
             }
 
             public void ProcessSelection ()
@@ -200,12 +222,17 @@ namespace Owl.Domain
         {
             public Line Line;
 
-            public LineGlyph (Line line, GlyphConfig config)
+            public LineGlyph (Line line)
             {
-                Config = config;
+                Config = VectorRedactor.LineConfig;
                 Line = line;
                 var path = Functions.GeneratePathFromPoints(Line.Polygon.ConvertToDrawingPoints());
                 Figure = new SolidFigure(path);
+            }
+
+            public override void ProcessMove(Point offset)
+            {
+                Move(offset.X, offset.Y);
             }
 
             protected override bool Intersects(Point point)
@@ -233,6 +260,11 @@ namespace Owl.Domain
                 Config = config;
             }
 
+            public override void ProcessMove(Point location)
+            {
+                return;
+            }
+
             protected override bool Intersects(Point point)
             {
                 return true;
@@ -240,7 +272,7 @@ namespace Owl.Domain
             
             public override void Move(int dx, int dy)
             {
-                throw new NotImplementedException();
+                throw new Exception("Can't move canvas");
             }
         }
 
@@ -250,15 +282,15 @@ namespace Owl.Domain
 
             protected override bool Intersects(Point point)
             {
-                throw new NotImplementedException();
+                return false;
             }
 
             public override void Move(int dx, int dy)
             {
-                throw new NotImplementedException();
+                return;
             }
 
-            public void ProcessMove (Point location)
+            public override void ProcessMove (Point location)
             {
                 if (Figure.IsNearStart(location))
                     location = Figure.FirstPoint;
@@ -277,10 +309,13 @@ namespace Owl.Domain
                 line.Polygon.LoadPointList(Figure.Points);
                 Redactor.Page.AddLine(line);
 
-                var glyph = new LineGlyph(line, Config) { Figure = new SolidFigure(path) };
+                var glyph = new LineGlyph(line) { Figure = new SolidFigure(path) };
                 MainGlyph.InsertChild(glyph);
 
                 Redactor.LoadLine(line);
+                ActiveGlyph = glyph;
+
+                Parent.RemoveChild(this);
             }
 
             /// <summary>
@@ -301,10 +336,14 @@ namespace Owl.Domain
                 if (VectorRedactor.Mode == RedactorModes.AddPolygon)
                     Redactor.Line.AddWord(word);
 
-                var wordGlyph = new WordGlyph(word, Config) { Figure = new SolidFigure(path) };
+                var wordGlyph = new WordGlyph(word) { Figure = new SolidFigure(path) };
                 MainGlyph.InsertChild(wordGlyph);
 
                 Redactor.LoadWord(word);
+
+                ActiveGlyph = wordGlyph;
+
+                Parent.RemoveChild(this);
             } 
 
             private void CompleteCreating ()
@@ -325,6 +364,7 @@ namespace Owl.Domain
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+                
             }
 
             public void ProcessLeftClick (Point location)
@@ -382,6 +422,13 @@ namespace Owl.Domain
             }
         }
 
+        public void ProcessMouseUp()
+        {
+            if (RedactorState != RedactorStates.Dragging) return;
+
+            RedactorState = RedactorStates.Default;
+        }
+
         /// <summary>
         /// Обрабатывает нажание левой кнопки мыши
         /// </summary>
@@ -393,14 +440,19 @@ namespace Owl.Domain
             if (RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord)
                 return;
 
-            if (e.Button == MouseButtons.Left && _redactorMode == RedactorModes.Move)
+            if (e.Button == MouseButtons.Left && _redactorMode == RedactorModes.Move && RedactorState == RedactorStates.Default)
             {
                 TryStartDraggingGlyphIn(location);
             }
         }
 
+        /// <summary>
+        /// Начинает создание нового глифа в зависимости от активного.
+        /// </summary>
+        /// <param name="location">Первая точка нового глифа</param>
         private void StartCreatingNewGlyphIn (Point location)
         {
+            _redactor.Cursor = Cursors.Default;
             var parent = ActiveGlyph;
 
             if (parent is CanvasGlyph)
@@ -411,27 +463,108 @@ namespace Owl.Domain
         }
 
         /// <summary>
-        /// Обработка клик левой кнопки мыши
+        /// Обрабатывает правый клик
+        /// </summary>
+        /// <param name="location">Т</param>
+        private void ProcessRightClick(Point location)
+        {
+            
+        }
+
+        private void StartMoving()
+        {
+            RedactorState = RedactorStates.Dragging;
+        }
+
+
+        public bool ProcessModeChangeToMove ()
+        {
+            if (ActiveGlyph is PathGlyph)
+                return false;
+
+            _redactorMode = RedactorModes.Move;
+            return true;
+        }
+
+        public bool ProcessModeChangeToCreate ()
+        {
+            if (ActiveGlyph is PathGlyph)
+                return false;
+
+            _redactorMode = RedactorModes.Create;
+            return true;
+        }
+
+        public bool ProcessModeChangeToAdd ()
+        {
+            if (ActiveGlyph is PathGlyph)
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Обрабатывает левый клик
+        /// </summary>
+        /// <param name="location"></param>
+        private void ProcessLeftClick(Point location)
+        {
+            if (RedactorState == RedactorStates.Default)
+            {
+                var newActiveGlyph = FindGlyphIn(location);
+                if (newActiveGlyph == ActiveGlyph)
+                {
+                    switch (Mode)
+                    {
+                        case RedactorModes.Create:
+                            StartCreatingNewGlyphIn(location);
+                            break;
+                        case RedactorModes.Move:
+                            StartMoving();
+                            break;
+                        case RedactorModes.AddPolygon:
+                            throw new NotImplementedException();
+                            break;
+                    }
+                }
+            }
+
+            if ((RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord) && ActiveGlyph is PathGlyph)
+                (ActiveGlyph as PathGlyph).ProcessLeftClick(location);
+
+        }
+
+        public void ProcessMove(MouseEventArgs e)
+        {
+            var cursor = Cursors.Default;
+            var location = e.Location;
+
+            if (RedactorState == RedactorStates.Default && FindGlyphIn(location) is SolidGlyph)
+                cursor = Cursors.Hand;
+
+            if ((ActiveGlyph is SolidGlyph) && (RedactorState == RedactorStates.Dragging) && (Mode == RedactorModes.Move))
+            {
+                ActiveGlyph.ProcessMove(new Point(location.X - LastCursorLocation.X, location.Y - LastCursorLocation.Y));
+            }
+
+            _redactor.Cursor = cursor;
+            LastCursorLocation = location;
+        }
+        /// <summary>
+        /// Обработка кликов мыши
         /// </summary>
         /// <param name="e"></param>
         public void ProcessClick(MouseEventArgs e)
         {
             var location = e.Location;
-            if (e.Button == MouseButtons.Left)
-            {
-                //Если редактор в режиме добавления - не меняем активный глиф
-                if (RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord)
-                {
-                    throw new NotImplementedException();
-                }
 
-                ActiveGlyph = FindGlyphIn(location);
-                if (_redactorMode == RedactorModes.Create)    
-                    StartCreatingNewGlyphIn(location);
-            }
-            else
+            switch (e.Button)
             {
-                throw new NotImplementedException();
+                case MouseButtons.Left:
+                    ProcessLeftClick(location);
+                    break;
+                case MouseButtons.Right:
+                    ProcessRightClick(location);
+                    break;
             }
         }
 
