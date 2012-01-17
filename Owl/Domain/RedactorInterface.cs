@@ -24,7 +24,8 @@ namespace Owl.Domain
         public enum RedactorModes
         {
             Create,
-            Move
+            Move,
+            AddPolygon
         }
 
         private RedactorModes _redactorMode;
@@ -40,6 +41,22 @@ namespace Owl.Domain
 
         private static List<Glyph> Glyphs { get; set; } 
 
+        public class GlyphConfig
+        {
+            public readonly Brush Brush;
+            public readonly Pen Pen;
+            public readonly Redactor Redactor;
+            public VectorRedactor VectorRedactor;
+
+            public GlyphConfig(Brush brush, Pen pen, Redactor redactor, VectorRedactor vectorRedactor)
+            {
+                Brush = brush;
+                Pen = pen;
+                Redactor = redactor;
+                VectorRedactor = vectorRedactor;
+            }
+        }
+
         public VectorRedactor(Graphics canvas, Redactor redactor)
         {
             Canvas = canvas;
@@ -50,20 +67,13 @@ namespace Owl.Domain
 
         abstract class Glyph
         {
-            private readonly Figure _figure;
-            private readonly Brush _brush;
-            private readonly Pen _pen;
+            protected readonly Figure Figure;
+            private Brush _brush;
+            private Pen _pen;
             protected Redactor Redactor;
             protected VectorRedactor VectorRedactor;
-
-            public Glyph(Figure figure, Brush brush, Pen pen, Redactor redactor)
-            {
-                _figure = figure;
-                _brush = brush;
-                _pen = pen;
-                Redactor = redactor;
-                Childs = new List<Glyph>();
-            }
+            protected Glyph MainGlyph;
+            protected GlyphConfig Config;
 
             protected Glyph()
             {
@@ -76,6 +86,18 @@ namespace Owl.Domain
             {
                 glyph.Parent = this;
                 Childs.Add(glyph);
+            }
+
+            /// <summary>
+            /// Загрузка конфигурации глифа
+            /// </summary>
+            /// <param name="config">Конфигурация</param>
+            protected void LoadConfig (GlyphConfig config)
+            {
+                _brush = config.Brush;
+                _pen = config.Pen;
+                Redactor = config.Redactor;
+                VectorRedactor = config.VectorRedactor;
             }
 
             public void RemoveChild(Glyph glyph)
@@ -120,8 +142,8 @@ namespace Owl.Domain
             /// </summary>
             public void Draw()
             {
-                if (_figure != null) 
-                    _figure.Draw(_brush,_pen);
+                if (Figure != null) 
+                    Figure.Draw(_brush,_pen);
 
                 if (Childs != null)
                     for (var index = Childs.Count - 1; index >= 0; index--)
@@ -134,7 +156,7 @@ namespace Owl.Domain
 
         abstract class SolidGlyph : Glyph
         {
-            public SolidFigure Figure;
+            public new SolidFigure Figure;
 
             public void DrawBounds ()
             {
@@ -146,10 +168,16 @@ namespace Owl.Domain
         {
             public Word Word { get; set; }
 
-            public WordGlyph(Word word)
+            public WordGlyph(Word word, GlyphConfig config)
             {
+                Config = config;
                 Word = word;
-                Figure = new SolidFigure();
+                var path = new GraphicsPath();
+                foreach (var polygon in Word.Polygons)
+                {
+                    path.AddPath(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints()), false);
+                }
+                Figure = new SolidFigure(path);
             }
 
             public override void Move(int dx, int dy)
@@ -159,7 +187,7 @@ namespace Owl.Domain
 
             public void ProcessSelection ()
             {
-                
+                Redactor.LoadWord(Word);
             }
 
             protected override bool Intersects(Point point)
@@ -172,14 +200,17 @@ namespace Owl.Domain
         {
             public Line Line;
 
-            public LineGlyph (Line line)
+            public LineGlyph (Line line, GlyphConfig config)
             {
+                Config = config;
                 Line = line;
+                var path = Functions.GeneratePathFromPoints(Line.Polygon.ConvertToDrawingPoints());
+                Figure = new SolidFigure(path);
             }
 
             protected override bool Intersects(Point point)
             {
-                throw new NotImplementedException();
+                return Figure.Intersects(point);
             }
 
             public override void Move(int dx, int dy)
@@ -197,6 +228,11 @@ namespace Owl.Domain
 
         class CanvasGlyph : Glyph
         {
+            public CanvasGlyph (GlyphConfig config)
+            {
+                Config = config;
+            }
+
             protected override bool Intersects(Point point)
             {
                 return true;
@@ -230,22 +266,62 @@ namespace Owl.Domain
                 Figure.ReplaceLastPoint(location);
             }
 
-            private void CompleteCreating ()
+            /// <summary>
+            /// Завершает добавления новой строки
+            /// </summary>
+            private void CompleteCreatingLine ()
             {
                 var path = Figure.GeneratePath();
+
+                var line = new Line();
+                line.Polygon.LoadPointList(Figure.Points);
+                Redactor.Page.AddLine(line);
+
+                var glyph = new LineGlyph(line, Config) { Figure = new SolidFigure(path) };
+                MainGlyph.InsertChild(glyph);
+
+                Redactor.LoadLine(line);
+            }
+
+            /// <summary>
+            /// Завершает добавление нового слова
+            /// </summary>
+            private void CompleteCreatingWord ()
+            {
+                var path = Figure.GeneratePath();
+
+                var word = new Word();
+                if (VectorRedactor.Mode == RedactorModes.AddPolygon)
+                    word = Redactor.Word;
+
+                var polygon = new Polygon();
+                polygon.LoadPointList(Figure.Points);
+                word.AddPolygon(polygon);
+
+                if (VectorRedactor.Mode == RedactorModes.AddPolygon)
+                    Redactor.Line.AddWord(word);
+
+                var wordGlyph = new WordGlyph(word, Config) { Figure = new SolidFigure(path) };
+                MainGlyph.InsertChild(wordGlyph);
+
+                Redactor.LoadWord(word);
+            } 
+
+            private void CompleteCreating ()
+            {
                 switch (VectorRedactor.RedactorState)
                 {
                     case RedactorStates.Dragging:
                         break;
+
                     case RedactorStates.CreatingLine:
-                        var line = new Line();
-                        Redactor.Page.AddLine(line);
-                        
-                        var glyph = new LineGlyph(line);
-                        Redactor.LoadLine(line);
+                        CompleteCreatingLine();
                         break;
+
                     case RedactorStates.CreatingWord:
+                        CompleteCreatingWord();
                         break;
+
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
