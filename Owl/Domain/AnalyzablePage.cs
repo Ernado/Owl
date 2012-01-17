@@ -149,26 +149,58 @@ namespace Owl.Domain
 
         public int HeightRange ()
         {
-            var heights = _lines.Select(line => line.Height).ToList();
-            return heights.Max() - heights.Min();
+            try
+            {
+                var heights = _lines.Select(line => line.Height).AsParallel().ToList();
+                if (heights.Count == 0)
+                    return 0;
+                return heights.Max() - heights.Min();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant calculate heights range",e);
+            }
+            
         }
 
         public int DistanceRange ()
         {
-            var distances = new List<int>();
-            var lastLineEnd = Lines[0].End;
-            for (int i = 1; i < Lines.Count; i++)
+            try
             {
-                distances.Add(Lines[i].End - lastLineEnd);
-                lastLineEnd = Lines[i].End;
+                var distances = new List<int>();
+                var lastLineEnd = Lines[0].End;
+                for (int i = 1; i < Lines.Count; i++)
+                {
+                    distances.Add(Lines[i].End - lastLineEnd);
+                    lastLineEnd = Lines[i].End;
+                }
+                if (distances.Count == 0)
+                    return 0;
+                return distances.Max() - distances.Min();
             }
-            return distances.Max() - distances.Min();
+            catch (Exception e)
+            {
+                throw new Exception("Cant calculate distances range",e);
+            }
+            
         }
 
         public double DensityRange ()
         {
-            var densities = Lines.Select(line => line.Density()).ToList();
-            return densities.Max() - densities.Min();
+            try
+            {
+                var densities = Lines.Select(line => line.Density()).AsParallel().ToList();
+
+                if (densities.Count == 0)
+                    return 0;
+
+                return densities.Max() - densities.Min();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant calculate densitys range",e);
+            }
+            
         }
 
         public int Width
@@ -374,12 +406,20 @@ namespace Owl.Domain
 
         public void SegmentatePage()
         {
-            var page = this;
-            var factors = new List<GrayCode> { new GrayCode(0, 2, 20) };
-            var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factors, 20, 8);
-            page.Lines = new List<AnalyzableLine>();
-            page = new PageSegmentator(config, page).SegmentedPage();
-            Lines = page.Lines;
+            try
+            {
+                var page = this;
+                var factors = new List<GrayCode> { new GrayCode(0, 2,20,8) };
+                var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factors, 20,8);
+                page.Lines = new List<AnalyzableLine>();
+                page = new PageSegmentator(config, page).SegmentedPage();
+                Lines = page.Lines;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant segmentate page",e);
+            }
+            
         }
     }
 
@@ -432,13 +472,21 @@ namespace Owl.Domain
 
         public double Density ()
         {
-            var blackPixels = 0;
-            var end = End;
-            for (int y = _start; y < end; y++)
-                for (int x = 0; x < AnalyzablePage.Height; x++)
-                    if (AnalyzablePage.Bit[x, y])
-                        blackPixels++;
-            return blackPixels/(double)(Height*AnalyzablePage.Width);
+            try
+            {
+                var blackPixels = 0;
+                var end = End;
+                for (int y = _start; y < end; y++)
+                    for (int x = 0; x < AnalyzablePage.Width; x++)
+                        if (AnalyzablePage.Bit[x, y])
+                            blackPixels++;
+                return blackPixels / (double)(Height * AnalyzablePage.Width);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant calculate density",e);
+            }
+            
         }
         
         /// <summary>
