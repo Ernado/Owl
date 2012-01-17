@@ -9,6 +9,7 @@ namespace Owl.GeneticAlgorithm.Domain
         public Organism ()
         {
             Alleles = new List<bool>();
+            _factors = new List<GrayCode>();
         }
 
         private List<GrayCode> _factors;
@@ -17,7 +18,20 @@ namespace Owl.GeneticAlgorithm.Domain
         public double Fitness { get; set; }
         public void GenerateLikelihood (double fitnessSum)
         {
-            Likelihood = Fitness/fitnessSum;
+            try
+            {
+                if (GenesCount == 0)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+
+                Likelihood = Fitness / fitnessSum;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant generate likelihood",e);
+            }
+            
         }
         public void AddGene (bool gene)
         {
@@ -28,12 +42,36 @@ namespace Owl.GeneticAlgorithm.Domain
             return Alleles[index];
         }
 
+        private void AddGenes (IEnumerable<bool> genes)
+        {
+            Alleles.AddRange(genes);
+        }
+
+        public void AddFactorAndCode (GrayCode factor)
+        {
+            AddFactor(factor);
+            AddGenes(factor.BooleanCode);
+        }
+
+        private void AddFactor (GrayCode factor)
+        {
+            _factors.Add(factor);
+        }
+
         public int GenesCount { get { return Alleles.Count; } }
 
         public List<GrayCode> Factors
         {
-            get
+            get { return _factors; }
+            set { _factors = value; }
+        }
+
+        public List<GrayCode> GenerateFactors()
+        {
+            try
             {
+                if (_factors.Count == 0) throw new ArgumentOutOfRangeException();
+
                 var factors = new List<GrayCode>();
                 var code = Alleles;
                 foreach (var factor in _factors)
@@ -42,15 +80,19 @@ namespace Owl.GeneticAlgorithm.Domain
                     var newFactor = factor;
                     newFactor.BooleanCode = code.GetRange(0, bits);
                     factors.Add(newFactor);
-                    code.RemoveRange(0,bits);
+                    code.RemoveRange(0, bits);
                 }
 
                 if (code.Count == 0)
                     return factors;
 
-                throw new Exception("Cant decode alleles");
+                throw new ArgumentOutOfRangeException();
             }
-            set { _factors = value; }
-        } 
+            catch (Exception e) 
+            {
+                throw new Exception("Cant generate factors",e);
+            }
+            
+        }
     }
 }
