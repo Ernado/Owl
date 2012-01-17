@@ -84,8 +84,16 @@ namespace Owl.Domain
         //protected static int DefaultSize = 40;
         //заливка фигуры
 
+        public SolidFigure(GraphicsPath path)
+        {
+            Path = path;
+        }
 
         public Point Location;
+
+        public SolidFigure()
+        {
+        }
 
         public Point Center
         {
@@ -338,7 +346,7 @@ namespace Owl.Domain
 
     public class UnclosedPathFigure : Figure
     {
-        private List<Point> Points { get; set; }
+        public List<Point> Points { get; private set; }
 
         public Point FirstPoint { get { return Points[0]; } }
 
