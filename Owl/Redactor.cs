@@ -21,6 +21,7 @@ namespace Owl
         public Line Line;
         public Word Word;
 
+        private VectorRedactor.VectorRedactorConfig _vectorRedactorConfig;
         private const string Dbfile = "database.db";
         private string _programName = "Редактор";
         public readonly BookRepository Repository = new BookRepository(Dbfile);
@@ -33,6 +34,14 @@ namespace Owl
         public Redactor()
         {
             InitializeComponent();
+            _vectorRedactorConfig = new VectorRedactor.VectorRedactorConfig
+                                        {
+                                            LineBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 255)),
+                                            LinePen = new Pen(Color.Blue),
+                                            WordBrush = new SolidBrush(Color.FromArgb(40,50,0,255)),
+                                            WordPen = new Pen(Color.FromArgb(255, 128, 0, 255))
+
+                                        };
         }
 
         public void LoadLine (Line line)
@@ -107,7 +116,7 @@ namespace Owl
             if (Page.Lines.Count>0)
                 LoadLine(Page.Lines[0]);
 
-            _vectorRedactor = new VectorRedactor(GetCanvas(), this);
+            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
             //DocumentLayout = new Layout(Page, );
         }
 
@@ -212,7 +221,7 @@ namespace Owl
 
         private void RedactorLoad(object sender, EventArgs e)
         {
-            _vectorRedactor = new VectorRedactor(GetCanvas(), this);
+            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
         }
 
         private void SelectNewTab(object sender, EventArgs e)
@@ -255,6 +264,8 @@ namespace Owl
         {
             if (_vectorRedactor.ProcessModeChangeToMove())
             {
+                addModeButton.Checked = false;
+                createMoveButton.Checked = false;
                 moveModeButton.Checked = true;
             }
         }
@@ -263,7 +274,9 @@ namespace Owl
         {
             if (_vectorRedactor.ProcessModeChangeToCreate())
             {
+                addModeButton.Checked = false;
                 createMoveButton.Checked = true;
+                moveModeButton.Checked = false;
             }
         }
 
@@ -272,6 +285,8 @@ namespace Owl
             if (_vectorRedactor.ProcessModeChangeToAdd())
             {
                 addModeButton.Checked = true;
+                createMoveButton.Checked = false;
+                moveModeButton.Checked = false;
             }
         }
 
