@@ -83,16 +83,18 @@ namespace Owl
 
         private void OkButtonClick(object sender, EventArgs e)
         {
-            if(IsNumberFree((int)pageNumberInput.Value)&&!File.Exists(_redactor.Book.Directory+"//"+_page.FileName)&&File.Exists(_fullPath))
+            if(IsNumberFree((int)pageNumberInput.Value)&&File.Exists(_fullPath))
             {
                 Enabled = false;
                 Cursor = Cursors.WaitCursor;
+                _page.FileName = _page.Number.ToString() + "_" + _page.FileName;
                 File.Copy(_fullPath, _redactor.Book.Directory + "//" + _page.FileName);
                 _page.Book = _redactor.Book;
                 _redactor.Book.AddPage(_page);
                 _redactor.LoadPage(_page);
                 Enabled = true;
                 Cursor = Cursors.Default;
+                Close();
             }
             else
             {
