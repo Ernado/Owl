@@ -147,7 +147,6 @@
     <Compile Include="GeneticAlgorithm\Domain\GeneticAlgorithm.cs" />
     <Compile Include="GeneticAlgorithm\Domain\Organism.cs" />
     <Compile Include="Domain\Layout.cs" />
-    <Compile Include="Domain\Word.cs" />
     <Compile Include="GeneticAlgorithm\Repositories\PageSegmentator.cs" />
     <Compile Include="PageCreate.cs">
       <SubType>Form</SubType>

@@ -16,6 +16,8 @@ namespace Owl
         protected Layout DocumentLayout;
         public Book Book;
         public Page Page;
+        public Line Line;
+        public Word Word;
         private const string Dbfile = "database.db";
         private string _programName = "Редактор";
         public readonly BookRepository Repository = new BookRepository(Dbfile);
