@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Owl.DataBase.Domain
 {
@@ -91,6 +92,14 @@ namespace Owl.DataBase.Domain
             Points.Add(point);
         }
 
+        public List<System.Drawing.Point> ConvertToDrawingPoints ()
+        {
+            return Points.Select(point => new System.Drawing.Point
+                                              {
+                                                  X = (int) Math.Round(point.X), Y = (int) Math.Round(point.Y)
+                                              }).ToList();
+        }
+
         /// <summary>
         /// Добавляет список точек к полигону. (Предварительно обнуляя исходный)
         /// </summary>
@@ -111,6 +120,11 @@ namespace Owl.DataBase.Domain
     /// </summary>
     public class Line
     {
+        public Line ()
+        {
+            Polygon = new Polygon();
+        }
+
         public virtual Guid UID { get; protected set; }
         public virtual Polygon Polygon { get; set; } //Многоугольник, описывающий строку
         public virtual IList<Word> Words
