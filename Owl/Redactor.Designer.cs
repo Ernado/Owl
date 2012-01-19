@@ -398,6 +398,7 @@
             this.interfaceBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.interfaceBox.TabIndex = 1;
             this.interfaceBox.TabStop = false;
+            this.interfaceBox.Paint += new System.Windows.Forms.PaintEventHandler(this.InterfaceBoxPaint);
             this.interfaceBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.InterfaceBoxMouseClick);
             this.interfaceBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.InterfaceBoxMouseDown);
             this.interfaceBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.InterfaceBoxMouseMove);
@@ -938,6 +939,7 @@
             this.Name = "Redactor";
             this.Text = "Redactor";
             this.Load += new System.EventHandler(this.RedactorLoad);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Redactor_Paint);
             this.Tools.ResumeLayout(false);
             this.Tools.PerformLayout();
             this.MainMenu.ResumeLayout(false);

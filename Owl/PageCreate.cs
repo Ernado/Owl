@@ -87,6 +87,7 @@ namespace Owl
             {
                 Enabled = false;
                 Cursor = Cursors.WaitCursor;
+                _page.Number = (int)pageNumberInput.Value;
                 _page.FileName = _page.Number.ToString() + "_" + _page.FileName;
                 File.Copy(_fullPath, _redactor.Book.Directory + "//" + _page.FileName);
                 _page.Book = _redactor.Book;

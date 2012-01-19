@@ -16,6 +16,10 @@ namespace Owl
         {
             _redactor = redactor;
             InitializeComponent();
+            _redactor.Enabled = false;
+
+            okButton.Enabled = false;
+            deleteButton.Enabled = false;
         }
 
         private void CancelButtonClick(object sender, EventArgs e)
@@ -52,13 +56,6 @@ namespace Owl
 
         private void BookOpenLoad(object sender, EventArgs e)
         {
-            _redactor.Enabled = false;
-
-            okButton.Enabled = false;
-            deleteButton.Enabled = false;
-
-            BeginInvoke(new InvokeDelegate(LoadBooks));
-            //LoadBooks();
         }
 
         private void OkButtonClick(object sender, EventArgs e)
@@ -100,6 +97,12 @@ namespace Owl
                 _redactor.Enabled = true;
                 Close();
             }
+        }
+
+        private void BookOpenShown(object sender, EventArgs e)
+        {
+
+            BeginInvoke(new InvokeDelegate(LoadBooks));
         }
     }
 }

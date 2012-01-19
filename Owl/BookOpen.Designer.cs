@@ -118,6 +118,7 @@
             this.ShowInTaskbar = false;
             this.Text = "Открыть книгу";
             this.Load += new System.EventHandler(this.BookOpenLoad);
+            this.Shown += new System.EventHandler(this.BookOpenShown);
             this.BookListPanel.ResumeLayout(false);
             this.DialogPanel.ResumeLayout(false);
             this.ResumeLayout(false);

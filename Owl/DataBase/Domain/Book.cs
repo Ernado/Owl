@@ -29,6 +29,14 @@ namespace Owl.DataBase.Domain
             line.Page = this;
             Lines.Add(line);
         }
+
+        public virtual void RemoveLine (Line line)
+        {
+            if (Lines.Contains(line))
+            {
+                Lines.Remove(line);
+            }
+        }
     }
 
     /// <summary>
@@ -55,6 +63,14 @@ namespace Owl.DataBase.Domain
             page.Book = this; //указываем документ как родительский для страницы
             Pages.Add(page); //добавляем страницу в список страниц документа
         }
+        public virtual void DeletePage(Page page)
+        {
+            if (Pages.Contains(page))
+            {
+                Pages.Remove(page);
+            }
+        }
+
     }
 
     /// <summary>
@@ -145,6 +161,18 @@ namespace Owl.DataBase.Domain
             word.Line = this;
             Words.Add(word);
         }
+
+        /// <summary>
+        /// Удаляет слово в строке
+        /// </summary>
+        /// <param name="word">Слово</param>
+        public virtual void DeleteWord(Word word)
+        {
+            if (Words.Contains(word))
+            {
+                Words.Remove(word);
+            }
+        }
     }
 
     /// <summary>
@@ -171,6 +199,14 @@ namespace Owl.DataBase.Domain
         public virtual void AddPolygon(Polygon polygon)
         {
             Polygons.Add(polygon);
+        }
+
+        public virtual void DeletePolygon(Polygon polygon)
+        {
+            if (Polygons.Contains(polygon))
+            {
+                Polygons.Remove(polygon);
+            }
         }
     }
 

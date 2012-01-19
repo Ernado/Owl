@@ -14,11 +14,12 @@ namespace Owl
     {
         private Book _book;
         private readonly Redactor _redactor;
-        private List<Page> _pages;
+        private IList<Page> _pages;
+        private Page _selectedPage;
 
         private void LoadBooks()
         {
-            _pages = _book.Pages as List<Page>;
+            _pages = _book.Pages;
             Cursor = Cursors.WaitCursor;
             if (_pages != null)
                 foreach (var page in _pages)
@@ -48,9 +49,43 @@ namespace Owl
         {
             InitializeComponent();
             _redactor = redactor;
+            _redactor.Enabled = false;
             _book = _redactor.Book;
             if (_book == null)
                 Close();
+            LoadBooks();
+        }
+
+        private void OkButtonClick(object sender, EventArgs e)
+        {
+            if (_selectedPage != null)
+            {
+                _redactor.LoadPage(_selectedPage);
+            }
+            Close();
+        }
+
+        private void CancelButtonClick(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void PageOpenFormClosed(object sender, FormClosedEventArgs e)
+        {
+            _redactor.Enabled = true;
+        }
+
+        private void DeleteButtonClick(object sender, EventArgs e)
+        {
+            if (_selectedPage!=null)
+            {
+                _redactor.Book.DeletePage(_selectedPage);
+            }
+        }
+
+        private void PageListSelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedPage = _pages[PageList.SelectedIndex];
         }
     }
 }

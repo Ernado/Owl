@@ -46,6 +46,7 @@
             this.PageList.Name = "PageList";
             this.PageList.Size = new System.Drawing.Size(302, 155);
             this.PageList.TabIndex = 0;
+            this.PageList.SelectedIndexChanged += new System.EventHandler(this.PageListSelectedIndexChanged);
             // 
             // deleteButton
             // 
@@ -55,6 +56,7 @@
             this.deleteButton.TabIndex = 2;
             this.deleteButton.Text = "Удалить";
             this.deleteButton.UseVisualStyleBackColor = true;
+            this.deleteButton.Click += new System.EventHandler(this.DeleteButtonClick);
             // 
             // okButton
             // 
@@ -64,6 +66,7 @@
             this.okButton.TabIndex = 1;
             this.okButton.Text = "Ок";
             this.okButton.UseVisualStyleBackColor = true;
+            this.okButton.Click += new System.EventHandler(this.OkButtonClick);
             // 
             // DialogPanel
             // 
@@ -85,6 +88,7 @@
             this.cancelButton.TabIndex = 0;
             this.cancelButton.Text = "Отмена";
             this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.CancelButtonClick);
             // 
             // BookListPanel
             // 
@@ -110,6 +114,7 @@
             this.Name = "PageOpen";
             this.ShowInTaskbar = false;
             this.Text = "Открыть страницу";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PageOpenFormClosed);
             this.DialogPanel.ResumeLayout(false);
             this.BookListPanel.ResumeLayout(false);
             this.ResumeLayout(false);

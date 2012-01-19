@@ -42,6 +42,8 @@ namespace Owl
                                             WordPen = new Pen(Color.FromArgb(255, 128, 0, 255))
 
                                         };
+            interfaceBox.Image = new Bitmap(100, 100);
+            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
         }
 
         public void LoadLine (Line line)
@@ -221,7 +223,7 @@ namespace Owl
 
         private void RedactorLoad(object sender, EventArgs e)
         {
-            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
+            
         }
 
         private void SelectNewTab(object sender, EventArgs e)
@@ -288,6 +290,23 @@ namespace Owl
                 createMoveButton.Checked = false;
                 moveModeButton.Checked = false;
             }
+        }
+
+        private void InterfaceBoxPaint(object sender, PaintEventArgs e)
+        {
+            _vectorRedactor.Layout.Canvas = e.Graphics;
+            _vectorRedactor.Draw();
+        }
+
+        public void InvalidateInterfaceBox()
+        {
+            interfaceBox.Invalidate();
+            interfaceBox.Update();
+        }
+
+        private void Redactor_Paint(object sender, PaintEventArgs e)
+        {
+            _vectorRedactor.Draw();
         }
 
  

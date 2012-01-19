@@ -21,7 +21,7 @@ namespace Owl.Domain
 
         public Pen SelectPen;
 
-        public Graphics Canvas { get; private set; }
+        public Graphics Canvas { get; set; }
 
         public Layout(Page page, Graphics canvas)
         {
@@ -32,6 +32,15 @@ namespace Owl.Domain
         public Layout(Graphics graphics)
         {
             Canvas = graphics;
+        }
+
+        public void RemoveFigure (Figure figure)
+        {
+            foreach (var child in Figures.Where(child => child == figure))
+                {
+                    Figures.Remove(child);
+                    return;
+                }
         }
 
         public void AddFigure (Figure figure)
@@ -294,11 +303,11 @@ namespace Owl.Domain
     //соединительная линия
     public class LineFigure : Figure
     {
+        public LineFigure() {}
+
         private static readonly Pen ClickPen = new Pen(Color.Transparent, 3);
         public SolidFigure From;
         public SolidFigure To;
-
-
 
         public override bool Intersects(Point p)
         {
@@ -346,6 +355,11 @@ namespace Owl.Domain
 
     public class UnclosedPathFigure : Figure
     {
+        public UnclosedPathFigure()
+        {
+            Points = new List<Point>();
+        }
+
         public List<Point> Points { get; private set; }
 
         public Point FirstPoint { get { return Points[0]; } }
@@ -357,7 +371,7 @@ namespace Owl.Domain
 
         public void ReplaceLastPoint(Point point)
         {
-            Points.Insert(Points.Count-1,point);
+            Points[Points.Count - 1] = point;
         }
 
         public void DeleteLastPoint ()
@@ -376,9 +390,14 @@ namespace Owl.Domain
             return false;
         }
 
+        public void UpdatePath()
+        {
+            Path = Functions.GeneratePathFromPoints(Points, false);
+        }
+
         public GraphicsPath GeneratePath()
         {
-            return Functions.GeneratePathFromPoints(Points);
+            return Functions.GeneratePathFromPoints(Points, false);
         }
 
         public override void Draw(Brush brush, Pen pen)
