@@ -9,21 +9,20 @@ namespace Owl.Repositories
 {
     public static class Functions
     {
-        public static GraphicsPath GeneratePathFromPoints (List<Point> points)
+        public static GraphicsPath GeneratePathFromPoints (List<Point> points, bool closed = true)
         {
             var path = new GraphicsPath();
 
-            if (points.Count < 3) throw new Exception("Cannot generate path");
+            if (points.Count < 2) throw new Exception("Cannot generate path");
 
-            for (int i = 0; i < points.Count-1; i++)
-            {
-                path.AddLine(points[i],points[i+1]);
-            }
-            path.CloseFigure();
+            for (int i = 0; i < points.Count - 1; i++)
+                path.AddLine(points[i], points[i + 1]);
+            if (closed)
+                path.CloseFigure();
             return path;
         }
 
-        public static GraphicsPath GeneratePathFromPoints(List<DataBase.Domain.Point> points)
+        public static GraphicsPath GeneratePathFromPoints(List<DataBase.Domain.Point> points, bool closed = true)
         {
             var path = new GraphicsPath();
 
@@ -35,7 +34,8 @@ namespace Owl.Repositories
                 var endPoint = new PointF(points[i+1].X, points[i+1].Y);
                 path.AddLine(startPoint,endPoint);
             }
-            path.CloseFigure();
+            if (closed)
+                path.CloseFigure();
             return path;
         }
 
