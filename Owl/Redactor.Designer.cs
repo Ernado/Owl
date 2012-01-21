@@ -86,7 +86,6 @@
             this.lineTabPanel = new System.Windows.Forms.Panel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lineListBox = new System.Windows.Forms.ListBox();
-            this.button4 = new System.Windows.Forms.Button();
             this.lineEditGroupBox = new System.Windows.Forms.GroupBox();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
@@ -97,8 +96,7 @@
             this.wordPage = new System.Windows.Forms.TabPage();
             this.wordTabPanel = new System.Windows.Forms.Panel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.button7 = new System.Windows.Forms.Button();
+            this.wordList = new System.Windows.Forms.ListBox();
             this.wordEditGroupBox = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -681,7 +679,6 @@
             // lineTabPanel
             // 
             this.lineTabPanel.Controls.Add(this.groupBox4);
-            this.lineTabPanel.Controls.Add(this.button4);
             this.lineTabPanel.Controls.Add(this.lineEditGroupBox);
             this.lineTabPanel.Controls.Add(this.button5);
             this.lineTabPanel.Controls.Add(this.button6);
@@ -702,7 +699,7 @@
             this.groupBox4.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(5, 5, 5, 6);
-            this.groupBox4.Size = new System.Drawing.Size(201, 214);
+            this.groupBox4.Size = new System.Drawing.Size(201, 237);
             this.groupBox4.TabIndex = 14;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Список строк";
@@ -714,18 +711,8 @@
             this.lineListBox.Location = new System.Drawing.Point(5, 18);
             this.lineListBox.Margin = new System.Windows.Forms.Padding(10);
             this.lineListBox.Name = "lineListBox";
-            this.lineListBox.Size = new System.Drawing.Size(191, 190);
+            this.lineListBox.Size = new System.Drawing.Size(191, 213);
             this.lineListBox.TabIndex = 1;
-            // 
-            // button4
-            // 
-            this.button4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button4.Location = new System.Drawing.Point(8, 333);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(201, 23);
-            this.button4.TabIndex = 12;
-            this.button4.Text = "Создать";
-            this.button4.UseVisualStyleBackColor = true;
             // 
             // lineEditGroupBox
             // 
@@ -812,7 +799,6 @@
             // wordTabPanel
             // 
             this.wordTabPanel.Controls.Add(this.groupBox6);
-            this.wordTabPanel.Controls.Add(this.button7);
             this.wordTabPanel.Controls.Add(this.wordEditGroupBox);
             this.wordTabPanel.Controls.Add(this.button8);
             this.wordTabPanel.Controls.Add(this.button9);
@@ -827,36 +813,26 @@
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.listBox1);
+            this.groupBox6.Controls.Add(this.wordList);
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox6.Location = new System.Drawing.Point(8, 119);
             this.groupBox6.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Padding = new System.Windows.Forms.Padding(5, 5, 5, 6);
-            this.groupBox6.Size = new System.Drawing.Size(201, 214);
+            this.groupBox6.Size = new System.Drawing.Size(201, 237);
             this.groupBox6.TabIndex = 14;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Список строк";
+            this.groupBox6.Text = "Список слов";
             // 
-            // listBox1
+            // wordList
             // 
-            this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(5, 18);
-            this.listBox1.Margin = new System.Windows.Forms.Padding(10);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(191, 190);
-            this.listBox1.TabIndex = 1;
-            // 
-            // button7
-            // 
-            this.button7.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button7.Location = new System.Drawing.Point(8, 333);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(201, 23);
-            this.button7.TabIndex = 12;
-            this.button7.Text = "Создать";
-            this.button7.UseVisualStyleBackColor = true;
+            this.wordList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wordList.FormattingEnabled = true;
+            this.wordList.Location = new System.Drawing.Point(5, 18);
+            this.wordList.Margin = new System.Windows.Forms.Padding(10);
+            this.wordList.Name = "wordList";
+            this.wordList.Size = new System.Drawing.Size(191, 213);
+            this.wordList.TabIndex = 1;
             // 
             // wordEditGroupBox
             // 
@@ -939,7 +915,7 @@
             this.Name = "Redactor";
             this.Text = "Redactor";
             this.Load += new System.EventHandler(this.RedactorLoad);
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Redactor_Paint);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.RedactorPaint);
             this.Tools.ResumeLayout(false);
             this.Tools.PerformLayout();
             this.MainMenu.ResumeLayout(false);
@@ -1037,7 +1013,6 @@
         private System.Windows.Forms.Panel lineTabPanel;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ListBox lineListBox;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.GroupBox lineEditGroupBox;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.LinkLabel linkLabel1;
@@ -1047,8 +1022,7 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Panel wordTabPanel;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.ListBox wordList;
         private System.Windows.Forms.GroupBox wordEditGroupBox;
         private System.Windows.Forms.NumericUpDown numericUpDown3;
         private System.Windows.Forms.Label label7;
