@@ -43,7 +43,7 @@ namespace Owl.Domain
         public Redactor Redactor;
         public VectorRedactorRepository ParentVectorRedactor;
         public Glyph MainGlyph;
-        protected GlyphConfig Config;
+        public GlyphConfig Config;
 
         public abstract void ProcessMove(Point location);
 
@@ -111,11 +111,13 @@ namespace Owl.Domain
             {
                 var child = Childs[index];
                 highterLayerGlyph = child.FindGlyphIn(location);
+                if (highterLayerGlyph != null)
+                    break;
             }
 
             //Если точка не принадлежит дочерним элементам
             //то она принадлежит данному
-            return highterLayerGlyph == null ? this : null;
+            return highterLayerGlyph ?? this;
         }
 
         /// <summary>
@@ -123,6 +125,9 @@ namespace Owl.Domain
         /// </summary>
         public virtual void Draw()
         {
+            if (Config == null)
+                throw new ArgumentNullException();
+
             if (Figure != null)
                 Figure.Draw(Config.Brush, Config.Pen);
 
@@ -143,13 +148,16 @@ namespace Owl.Domain
                 throw new ArgumentNullException();
 
             if (Figure is SolidFigure)
-                (Figure as SolidFigure).DrawBounds();
+                (Figure as SolidFigure).DrawBounds(Config.Pen);
             else
                 throw new ArgumentException("Solid glyph figure is not SolidFigure");
         }
 
         public override void Move(int dx, int dy)
         {
+            if (ParentVectorRedactor.Mode != RedactorModes.Move)
+                return;
+
             if (Figure == null)
                 throw new NullReferenceException("Figure is null");
 
@@ -162,6 +170,16 @@ namespace Owl.Domain
         public virtual void ProcessSelection()
         {
             throw new NotImplementedException();
+        }
+
+        public override void ProcessMove(Point offset)
+        {
+            if (ParentVectorRedactor.RedactorState == RedactorStates.Dragging)
+            {
+                Move(offset.X, offset.Y);
+                Redactor.InvalidateInterfaceBox();
+            }
+
         }
     }
 
@@ -183,11 +201,7 @@ namespace Owl.Domain
             Childs = new List<Glyph>();
         }
 
-        public override void ProcessMove(Point offset)
-        {
-            Move(offset.X, offset.Y);
-            Redactor.InvalidateInterfaceBox();
-        }
+        
 
         public override void ProcessSelection()
         {
@@ -220,12 +234,6 @@ namespace Owl.Domain
             Childs = new List<Glyph>();
         }
 
-        public override void ProcessMove(Point offset)
-        {
-            Move(offset.X, offset.Y);
-            Redactor.InvalidateInterfaceBox();
-        }
-
         protected override bool Intersects(Point point)
         {
             return Figure.Intersects(point);
@@ -235,8 +243,15 @@ namespace Owl.Domain
         {
             Childs.Add(glyph);
             Line.AddWord(glyph.Word);
-            ParentVectorRedactor.Glyphs.Add(glyph);
             ParentVectorRedactor.Layout.AddFigure(glyph.Figure);
+        }
+
+        public override void  ProcessSelection()
+        {
+            if (Line == null)
+                throw new NullReferenceException("Line can't be null");
+
+            Redactor.LoadLine(Line);
         }
     }
 
@@ -294,7 +309,7 @@ namespace Owl.Domain
             if (figure == null)
                 throw new ArgumentNullException();
 
-            var oldLocation = figure.Points[figure.Points.Count - 1];
+            var oldLocation = ParentVectorRedactor.LastCursorLocation;
             var newLocation = new Point {X = oldLocation.X + offset.X, Y = oldLocation.Y + offset.Y};
 
             if (figure.IsNearStart(newLocation))
@@ -322,14 +337,11 @@ namespace Owl.Domain
             line.Polygon.LoadPointList(figure.Points);
             Redactor.Page.AddLine(line);
 
-
-            var glyph = new LineGlyph(line) { Figure = new SolidFigure(path) };
+            var glyph = new LineGlyph(line) { Figure = new SolidFigure(path), Config = ParentVectorRedactor.LineConfig};
 
             Parent.InsertChild(glyph);
-            
-            ParentVectorRedactor.ActiveGlyph = glyph;
 
-            Invalidate();
+            ParentVectorRedactor.ActiveGlyph = glyph;
         }
 
         /// <summary>
@@ -355,14 +367,11 @@ namespace Owl.Domain
             if (ParentVectorRedactor.Mode == RedactorModes.AddPolygon)
                 Redactor.Line.AddWord(word);
 
-            var wordGlyph = new WordGlyph(word) { Figure = new SolidFigure(path) };
+            var wordGlyph = new WordGlyph(word) { Figure = new SolidFigure(path), Config = ParentVectorRedactor.WordConfig};
             
             Parent.InsertChild(wordGlyph);
 
             ParentVectorRedactor.ActiveGlyph = wordGlyph;
-
-
-            Invalidate();
         }
 
         private void CompleteCreating()
@@ -370,7 +379,7 @@ namespace Owl.Domain
             switch (ParentVectorRedactor.RedactorState)
             {
                 case RedactorStates.Dragging:
-                    break;
+                    throw new ArgumentOutOfRangeException();
 
                 case RedactorStates.CreatingLine:
                     CompleteCreatingLine();
@@ -390,8 +399,10 @@ namespace Owl.Domain
                 throw new ArgumentNullException();
 
             solidGlyph.ProcessSelection();
-
+            
             Parent.RemoveChild(this);
+
+            Invalidate();
         }
 
         public void ProcessLeftClick(Point location)
@@ -414,9 +425,6 @@ namespace Owl.Domain
 
         public void StartCreatingIn(Point point)
         {
-            Parent = ParentVectorRedactor.ActiveGlyph;
-            ParentVectorRedactor.ActiveGlyph.InsertChild(this);
-            ParentVectorRedactor.ActiveGlyph = this;
             Figure = new UnclosedPathFigure { Layout = ParentVectorRedactor.Layout };
             ParentVectorRedactor.Layout.AddFigure(Figure);
             (Figure as UnclosedPathFigure).AddPoint(point);

@@ -11,7 +11,7 @@ namespace Owl.Repositories
 {
     class VectorRedactorRepository : IVectorRedactorInterface
     {
-        private Point LastCursorLocation { get; set; }
+        public Point LastCursorLocation { get; set; }
         public RedactorStates RedactorState { get; set; }
         public RedactorModes Mode { get; private set; }
         public readonly Layout Layout;
@@ -19,10 +19,8 @@ namespace Owl.Repositories
         private readonly Redactor _redactor;
         public Glyph ActiveGlyph { get; set; }
         private CanvasGlyph MainGlyph { get; set; }
-        private GlyphConfig WordConfig { get; set; }
-        private GlyphConfig LineConfig { get; set; }
-
-        public List<Glyph> Glyphs { get; private set; }
+        public GlyphConfig WordConfig { get; set; }
+        public GlyphConfig LineConfig { get; set; }
 
         public class VectorRedactorConfig
         {
@@ -53,8 +51,6 @@ namespace Owl.Repositories
             ActiveGlyph = MainGlyph;
         }
 
-
-
         /// <summary>
         /// Возвращает глиф наиболее высокого уровня, к которому принадлежит точка.
         /// </summary>
@@ -63,24 +59,6 @@ namespace Owl.Repositories
         private Glyph FindGlyphIn(Point location)
         {
             return MainGlyph.FindGlyphIn(location);
-        }
-
-        private void StartCreatingNewWordIn(Point location)
-        {
-            var pathGlyph = new PathGlyph(WordConfig);
-            MainGlyph.InsertChild(pathGlyph);
-
-            pathGlyph.StartCreatingIn(location);
-            RedactorState = RedactorStates.CreatingWord;
-        }
-
-        private void StartCreatingNewLineIn(Point location)
-        {
-            var pathGlyph = new PathGlyph(LineConfig);
-            MainGlyph.InsertChild(pathGlyph);
-            pathGlyph.StartCreatingIn(location);
-
-            RedactorState = RedactorStates.CreatingLine;
         }
 
         private void TryStartDraggingGlyphIn(Point location)
@@ -95,9 +73,11 @@ namespace Owl.Repositories
 
         public void ProcessMouseUp()
         {
-            if (RedactorState != RedactorStates.Dragging) return;
-
-            RedactorState = RedactorStates.Default;
+            if (RedactorState == RedactorStates.Dragging)
+            {
+                RedactorState = RedactorStates.Default;
+                return;
+            }
         }
 
         /// <summary>
@@ -126,10 +106,16 @@ namespace Owl.Repositories
             var parent = ActiveGlyph;
 
             if (parent is CanvasGlyph)
-                StartCreatingNewLineIn(location);
+                RedactorState = RedactorStates.CreatingLine;
 
             if (parent is LineGlyph)
-                StartCreatingNewWordIn(location);
+                RedactorState = RedactorStates.CreatingWord;
+
+            var glyph = new PathGlyph(LineConfig);
+            parent.InsertChild(glyph);
+
+            ActiveGlyph = glyph;
+            glyph.StartCreatingIn(location);
         }
 
         /// <summary>
@@ -178,6 +164,12 @@ namespace Owl.Repositories
         /// <param name="location"></param>
         private void ProcessLeftClick(Point location)
         {
+            if (RedactorState == RedactorStates.Dragging)
+            {
+                RedactorState = RedactorStates.Default;
+                return;
+            }
+
             if (RedactorState == RedactorStates.Default)
             {
                 var newActiveGlyph = FindGlyphIn(location);
@@ -200,13 +192,12 @@ namespace Owl.Repositories
                 {
                     ActiveGlyph = newActiveGlyph;
                     if (ActiveGlyph is SolidGlyph)
-                    {
                         (ActiveGlyph as SolidGlyph).ProcessSelection();
-                    }
+                    _redactor.Invalidate();
                 }
             }
 
-            if ((RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord) && ActiveGlyph is PathGlyph)
+            if (ActiveGlyph is PathGlyph)
                 (ActiveGlyph as PathGlyph).ProcessLeftClick(location);
 
         }
@@ -216,15 +207,13 @@ namespace Owl.Repositories
             var cursor = Cursors.Default;
             var location = e.Location;
 
-            if (RedactorState == RedactorStates.Default && !(FindGlyphIn(location) is PathGlyph))
+            if (RedactorState == RedactorStates.Default && !(FindGlyphIn(location) is PathGlyph) && !(FindGlyphIn(location) is CanvasGlyph))
                 cursor = Cursors.Hand;
 
             if (ActiveGlyph is PathGlyph)
                 cursor = Cursors.Cross;
 
-
             ActiveGlyph.ProcessMove(new Point(location.X - LastCursorLocation.X, location.Y - LastCursorLocation.Y));
-
 
             _redactor.Cursor = cursor;
             LastCursorLocation = location;

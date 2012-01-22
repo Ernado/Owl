@@ -304,12 +304,5 @@ namespace Owl
             interfaceBox.Invalidate();
             interfaceBox.Update();
         }
-
-        private void Redactor_Paint(object sender, PaintEventArgs e)
-        {
-            _vectorRedactor.Draw();
-        }
-
- 
     }
 }
