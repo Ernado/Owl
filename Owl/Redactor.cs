@@ -9,19 +9,20 @@ using NHibernate.Tool.hbm2ddl;
 using Owl.DataBase.Repositories;
 using Owl.DataBase.Domain;
 using Owl.Domain;
+using Owl.Repositories;
 
 namespace Owl
 {
     public partial class Redactor : Form
     {
-        private VectorRedactor _vectorRedactor;
+        private VectorRedactorRepository _vectorRedactor;
         protected Layout DocumentLayout;
         public Book Book;
         public Page Page;
         public Line Line;
         public Word Word;
 
-        private VectorRedactor.VectorRedactorConfig _vectorRedactorConfig;
+        private VectorRedactorRepository.VectorRedactorConfig _vectorRedactorConfig;
         private const string Dbfile = "database.db";
         private string _programName = "Редактор";
         public readonly BookRepository Repository = new BookRepository(Dbfile);
@@ -34,7 +35,7 @@ namespace Owl
         public Redactor()
         {
             InitializeComponent();
-            _vectorRedactorConfig = new VectorRedactor.VectorRedactorConfig
+            _vectorRedactorConfig = new VectorRedactorRepository.VectorRedactorConfig
                                         {
                                             LineBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 255)),
                                             LinePen = new Pen(Color.Blue),
@@ -43,7 +44,7 @@ namespace Owl
 
                                         };
             interfaceBox.Image = new Bitmap(100, 100);
-            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
+            _vectorRedactor = new VectorRedactorRepository(GetCanvas(), this, _vectorRedactorConfig);
         }
 
         public void LoadLine (Line line)
@@ -118,7 +119,7 @@ namespace Owl
             if (Page.Lines.Count>0)
                 LoadLine(Page.Lines[0]);
 
-            _vectorRedactor = new VectorRedactor(GetCanvas(), this, _vectorRedactorConfig);
+            _vectorRedactor = new VectorRedactorRepository(GetCanvas(), this, _vectorRedactorConfig);
             //DocumentLayout = new Layout(Page, );
         }
 

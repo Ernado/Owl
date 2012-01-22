@@ -915,7 +915,6 @@
             this.Name = "Redactor";
             this.Text = "Redactor";
             this.Load += new System.EventHandler(this.RedactorLoad);
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.RedactorPaint);
             this.Tools.ResumeLayout(false);
             this.Tools.PerformLayout();
             this.MainMenu.ResumeLayout(false);
