@@ -133,10 +133,10 @@ namespace Owl.Domain
         /// <summary>
         /// Рисует границу
         /// </summary>
-        public void DrawBounds ()
+        public void DrawBounds (Pen pen)
         {
             var bounds = Bounds;
-            Layout.Canvas.DrawRectangle(Layout.SelectPen, bounds.Left - 2, 
+            Layout.Canvas.DrawRectangle(pen, bounds.Left - 2, 
                 bounds.Top - 2, bounds.Width + 4, bounds.Height + 4);
         }
 
@@ -303,8 +303,6 @@ namespace Owl.Domain
     //соединительная линия
     public class LineFigure : Figure
     {
-        public LineFigure() {}
-
         private static readonly Pen ClickPen = new Pen(Color.Transparent, 3);
         public SolidFigure From;
         public SolidFigure To;
@@ -382,7 +380,7 @@ namespace Owl.Domain
         public  bool IsNearStart (Point p)
         {
             var startPoint = Points[0];
-            return (Math.Abs(startPoint.X - p.X) < 2) && (Math.Abs(startPoint.Y - p.Y) < 2);
+            return (Math.Abs(startPoint.X - p.X) < 5) && (Math.Abs(startPoint.Y - p.Y) < 5);
         }
 
         public override bool Intersects(Point p)
