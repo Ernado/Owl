@@ -73,8 +73,9 @@ namespace Owl.Test
             double value = 0.5;
             double min = -1.0; 
             double max = 1.0; 
-            int bitAccuracy = 8; 
-            GrayCode target = new GrayCode(value, min, max, bitAccuracy); 
+            uint bitAccuracy = 8; 
+            GrayCodeConfig config = new GrayCodeConfig(min,max,bitAccuracy);
+            GrayCode target = new GrayCode(value, config); 
             uint expected = 224;
             uint actual = target.DecimalCode;
             Assert.AreEqual(expected, actual);
@@ -87,14 +88,15 @@ namespace Owl.Test
         public void ValueTest()
         {
             double value = 1.0; 
-            double min = 0; 
-            double max = 2; 
-            int bitAccuracy = 8; 
-            GrayCode target = new GrayCode(value, min, max, bitAccuracy); 
+            double min = 0.5; 
+            double max = 4;
+            uint bitAccuracy = 8; 
+            GrayCodeConfig config = new GrayCodeConfig(min, max, bitAccuracy);
+            GrayCode target = new GrayCode(value, config); 
             double expected = value; 
             double actual;
             actual = target.Value;
-            Assert.IsTrue(Math.Abs(actual - expected) < 0.0078);
+            Assert.IsTrue(Math.Abs(actual - expected) <= 2/(Math.Pow(2,bitAccuracy)-1));
         }
 
         /// <summary>
@@ -105,9 +107,10 @@ namespace Owl.Test
         {
             double value = 0.5; 
             double min = -1.0; 
-            double max = 1.0; 
-            int bitAccuracy = 8;
-            GrayCode target = new GrayCode(value, min, max, bitAccuracy); 
+            double max = 1.0;
+            uint bitAccuracy = 8; 
+            GrayCodeConfig config = new GrayCodeConfig(min, max, bitAccuracy);
+            GrayCode target = new GrayCode(value, config); 
             string expected = "11100000"; 
             string actual;
             //target.StringCode = expected;
@@ -124,8 +127,9 @@ namespace Owl.Test
             double value = 0.2; 
             double min = 0F; 
             double max = 2;
-            int bitAccuracy = 4; 
-            var target = new GrayCode(value, min, max, bitAccuracy);
+            uint bitAccuracy = 8;
+            GrayCodeConfig config = new GrayCodeConfig(min, max, bitAccuracy);
+            GrayCode target = new GrayCode(value, config); 
         }
     }
 }
