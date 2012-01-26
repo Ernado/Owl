@@ -120,6 +120,7 @@ namespace Owl
                 LoadLine(Page.Lines[0]);
 
             _vectorRedactor = new VectorRedactorRepository(GetCanvas(), this, _vectorRedactorConfig);
+            _vectorRedactor.LoadPage(Page);
             //DocumentLayout = new Layout(Page, );
         }
 

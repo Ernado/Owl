@@ -48,12 +48,12 @@ namespace Owl
             {
                 str1.WriteLine(t);
             }
-            str1.Close();
+            str1.Close(); /*
             ranges = Repositories.Functions.FeautureScaling(ranges);
             points = Repositories.Functions.FeautureScaling(points);
             factors.Add(new GrayCode(0,-1,1));
             factors.Add(new GrayCode(0, 0, 1));
-            factors.Add(new GrayCode(0, 0, 1));
+            factors.Add(new GrayCode(0, 0, 1)); */
             //var geneticAlgorithm = new GeneticAlgorithm(points, ranges, factors);
             //page.Lines = geneticAlgorithm.Solve();
             page.RenderLines(imageOutput);

@@ -55,12 +55,9 @@ namespace Owl.Domain
     /// </summary>
     public abstract class Figure
     {
-        //readonly SerializableGraphicsPath _serializablePath = new SerializableGraphicsPath();
-        //карандаш отрисовки линий
-        protected GraphicsPath Path { get; set; }
+        public GraphicsPath Path { get; protected set; }
 
         public Layout Layout { get; set; }
-
 
         /// <summary>
         /// Проверка принадлежности точки к фигуре.

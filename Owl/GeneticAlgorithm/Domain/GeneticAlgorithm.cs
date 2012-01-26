@@ -5,69 +5,16 @@ using Owl.Algorythms;
 
 namespace Owl.GeneticAlgorithm.Domain
 {
-    class GeneticAlgorithm
+    public abstract class GeneticAlgorithm
     {
-        protected Config GeneticConfiguration;
-        private IList<Organism> _population;
-        protected Organism BestOrganism;
         private readonly Random _random = new Random();
-
-        public class Config
-        {
-            public double MutationRate { get; private set; }
-            public double MaximumIterations { get; private set; }
-            public double ConvergenceRate { get; private set; }
-            public List<GrayCode> Factors { get; set; }
-            public int PopulationSize { get; private set; }
-            public int Accuracy { get; private set; }
-
-            public Config(double mutationRate, int maximumIterations, double convergenceRate, List<GrayCode> factors, int populationSize, int accuracy)
-            {
-                if ((mutationRate<0) || (mutationRate>1))
-                {
-                    throw new ArgumentOutOfRangeException("mutationRate");
-                }
-
-                if (maximumIterations < 1)
-                {
-                    throw new ArgumentOutOfRangeException("maximumIterations");
-                }
-
-                if ((convergenceRate < 0) || (convergenceRate > 1))
-                {
-                    throw new ArgumentOutOfRangeException("mutationRate");
-                }
-
-                if (factors.Count<1)
-                {
-                    throw new ArgumentOutOfRangeException("factors");
-                }
-
-                if (populationSize < 2)
-                {
-                    throw new ArgumentOutOfRangeException("populationSize");
-                }
-
-                if ((accuracy>20) || (accuracy<1))
-                {
-                    throw new ArgumentOutOfRangeException("accuracy");
-                }
-
-                if (factors.Any(grayCode => grayCode.BitAccuracy != accuracy))
-                    throw new Exception("Invalid factor bit accuracy");
-
-                MutationRate = mutationRate;
-                MaximumIterations = maximumIterations;
-                ConvergenceRate = convergenceRate;
-                Factors = factors;
-                PopulationSize = populationSize;
-                Accuracy = accuracy;
-            }
-        }
+        protected Organism BestOrganism;
+        public Config GeneticConfiguration;
+        private IList<Organism> _population;
 
         private void MutateOrganism(Organism organism)
         {
-            var mutationRate = GeneticConfiguration.MutationRate;
+            double mutationRate = GeneticConfiguration.MutationRate;
             if ((mutationRate < 0) || (mutationRate > 1))
             {
                 throw new ArgumentOutOfRangeException();
@@ -75,19 +22,17 @@ namespace Owl.GeneticAlgorithm.Domain
 
             try
             {
-                for (var index = 0; index < organism.GenesCount; index++)
+                for (int index = 0; index < organism.GenesCount; index++)
                     if (_random.NextDouble() <= GeneticConfiguration.MutationRate)
                         organism.Alleles[index] = !organism.Alleles[index];
             }
             catch (Exception e)
             {
-                throw new Exception("Cant mutate organism",e);
+                throw new Exception("Cant mutate organism", e);
             }
-
-            
         }
 
-        private Organism Crossover (Organism alpha, Organism beta)
+        private Organism Crossover(Organism alpha, Organism beta)
         {
             try
             {
@@ -96,34 +41,32 @@ namespace Owl.GeneticAlgorithm.Domain
                     throw new ArgumentOutOfRangeException("alpha", @"Chromosome lengths must be different");
                 }
 
-                var length = alpha.GenesCount;
+                int length = alpha.GenesCount;
 
                 var offspring = new Organism {Factors = alpha.Factors};
 
                 //Сгенерируем точки кроссовера
-                var crossoverPoints = new[] { _random.Next(length), _random.Next(length) };
-                var crossoverStart = crossoverPoints.Min(); //Начало отрезка - меньшая точка
-                var crossoverEnd = crossoverPoints.Max(); //Конец - большая
+                var crossoverPoints = new[] {_random.Next(length), _random.Next(length)};
+                int crossoverStart = crossoverPoints.Min(); //Начало отрезка - меньшая точка
+                int crossoverEnd = crossoverPoints.Max(); //Конец - большая
 
                 //Получаем новую хромосому, заменяя гены инициируемого организма в [start; end] генами из инициирующего. 
                 // A {Ai..As..Ae..An} + B {Bi..Bs..Be..Bn} = Descendant {Bi..Bs-1,As..Ae,Be+1..Bn}
-                for (var i = 0; i < length; i++)
-                    if (i >= crossoverStart && i <= crossoverEnd)
+                for (int i = 0; i < length; i++)
+                    if ((i >= crossoverStart) && (i <= crossoverEnd))
                         offspring.AddGene(alpha.GetGene(i));
                     else
                         offspring.AddGene(beta.GetGene(i));
-
+                offspring.Factors = offspring.GenerateFactors();
                 return offspring;
             }
             catch (Exception e)
             {
                 throw new Exception("Cant crossover", e);
             }
-
-           
         }
 
-        private void AddToPopulation (Organism organism, List<Organism> population)
+        private void AddToPopulation(Organism organism, List<Organism> population)
         {
             if (organism.GenesCount == 0)
                 throw new ArgumentOutOfRangeException("organism");
@@ -136,10 +79,7 @@ namespace Owl.GeneticAlgorithm.Domain
 
         private void AddToPopulation(Organism organism)
         {
-            if (organism.GenesCount == 0)
-                throw new ArgumentOutOfRangeException("organism");
-
-            if (organism.Factors.Count == 0)
+            if (organism.GenesCount == 0 || organism.Factors.Count == 0)
                 throw new ArgumentOutOfRangeException("organism");
 
             _population.Add(organism);
@@ -157,18 +97,18 @@ namespace Owl.GeneticAlgorithm.Domain
             {
                 if (alpha.GenesCount != beta.GenesCount)
                 {
-                    throw new ArgumentOutOfRangeException("alpha", @"Chromosome lengths must be different");
+                    throw new ArgumentOutOfRangeException("alpha", @"Chromosome lengths must be same");
                 }
 
                 //С вероятностью 0.5 инициирующей особью будет A
                 if (_random.NextDouble() <= 0.5)
                 {
-                    var t = alpha;
+                    Organism t = alpha;
                     alpha = beta;
                     beta = t;
                 }
 
-                var offspring = Crossover(alpha, beta);
+                Organism offspring = Crossover(alpha, beta);
 
                 MutateOrganism(offspring);
 
@@ -176,24 +116,23 @@ namespace Owl.GeneticAlgorithm.Domain
             }
             catch (Exception e)
             {
-                throw new Exception("Cant breed",e);
-            }      
+                throw new Exception("Cant breed", e);
+            }
         }
 
-        private GrayCode GenerateRandomFactor (GrayCode factor)
+        private GrayCode GenerateRandomFactor(GrayCodeConfig config)
         {
             try
             {
-                var randomFactor = factor;
-                var decimalNumber = (uint)_random.Next(0, (int)(Math.Pow(2, factor.BitAccuracy) - 1));
+                var randomFactor = new GrayCode(0, config);
+                var decimalNumber = (uint) _random.Next(0, (int) (Math.Pow(2, config.Accuracy) - 1));
                 randomFactor.DecimalCode = decimalNumber;
                 return randomFactor;
             }
             catch (Exception e)
             {
-                throw new Exception("Cant generate random factor",e);
+                throw new Exception("Cant generate random factor", e);
             }
-            
         }
 
         private Organism GenerateRandomOrganism()
@@ -201,36 +140,29 @@ namespace Owl.GeneticAlgorithm.Domain
             try
             {
                 var organism = new Organism();
-                foreach (var randomFactor in GeneticConfiguration.Factors.AsParallel().AsOrdered().Select(GenerateRandomFactor))
+                foreach (
+                    GrayCode factor in
+                        GeneticConfiguration.FactorConfigs.AsParallel().AsOrdered().Select(GenerateRandomFactor))
                 {
-                    organism.AddFactorAndCode(randomFactor);
+                    organism.AddFactorAndCode(factor);
                 }
-                return organism;
 
+                return organism;
             }
             catch (Exception e)
             {
-                throw new Exception("Cant generate random organism",e);
+                throw new Exception("Cant generate random organism", e);
             }
-            
         }
 
-        private IList<Organism> GenerateInitialPopulation ()
+        private IList<Organism> GenerateInitialPopulation()
         {
             var population = new List<Organism>();
-            try
-            {
-                while (population.Count < GeneticConfiguration.PopulationSize)
-                    AddToPopulation(GenerateRandomOrganism());
+            while (population.Count < GeneticConfiguration.PopulationSize)
+                AddToPopulation(GenerateRandomOrganism(), population);
 
-                return population;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Cant generate initial population",e);
-            }
-            
-        } 
+            return population;
+        }
 
         /// <summary>
         /// Возвращает организм с вероятностью, зависящей от живучести
@@ -238,12 +170,12 @@ namespace Owl.GeneticAlgorithm.Domain
         /// <returns>Организм</returns>
         private Organism Roullete()
         {
-            var score = _random.NextDouble();
+            double score = _random.NextDouble();
             double position = 0;
 
             try
             {
-                foreach (var organism in _population)
+                foreach (Organism organism in _population)
                 {
                     position += organism.Likelihood;
 
@@ -255,10 +187,9 @@ namespace Owl.GeneticAlgorithm.Domain
             }
             catch (Exception e)
             {
-                
-                throw new Exception("Cant choice organism",e);
+                throw new Exception("Cant choice organism", e);
             }
-            
+
 
             throw new Exception("Roullete choice failed");
         }
@@ -269,75 +200,67 @@ namespace Owl.GeneticAlgorithm.Domain
             {
                 return _population.Sum(organism => organism.Fitness);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                throw new Exception("Cant calculate fitness sum",e);
+                throw new Exception("Cant calculate fitness sum", e);
             }
         }
 
-        private void GenerateLikalihoods ()
+        private void GenerateLikalihoods()
         {
             try
             {
-                var fitnessSum = FitnessSumOfPopulation();
-                foreach (var organism in _population.AsParallel())
+                double fitnessSum = FitnessSumOfPopulation();
+                foreach (Organism organism in _population.AsParallel())
                 {
                     organism.GenerateLikelihood(fitnessSum);
                 }
             }
             catch (Exception e)
             {
-                
-                throw new Exception("Cant generate likalihoods",e);
+                throw new Exception("Cant generate likalihoods", e);
             }
-            
         }
 
-        protected virtual double Fitness (Organism organism)
+        protected abstract double Fitness(Organism organism);
+
+        private void CalculateFitness(Organism organism)
         {
-            throw new NotImplementedException("Fitness function not set");
+            var fitness = Fitness(organism);
+            organism.Fitness = fitness;
         }
 
-        private void GenerateFitnesses ()
+        private void GenerateFitnesses()
         {
-            foreach (var organism in _population.AsParallel())
+            var parallelQuery = _population.AsParallel();
+            parallelQuery.ForAll(CalculateFitness);
+            /*foreach (var organism in _population)
             {
-                try {organism.Fitness = Fitness(organism);}
-                catch(Exception e)
-                {
-                    throw new Exception("Cant generate fitness",e);
-                }
-            }
+                organism.Fitness = Fitness(organism);
+            }*/
         }
 
-        private IList<Organism> NewPopulation ()
+        private IList<Organism> NewPopulation()
         {
-            try
-            {
-                var newPopulation = new List<Organism>();
-                newPopulation.AddRange(_population.AsParallel().Select(organism => CreateOffspring()));
+            var newPopulation = new List<Organism>();
+            //newPopulation.AddRange(_population.AsParallel().Select(organism => CreateOffspring()));
 
-                while (newPopulation.Count < GeneticConfiguration.PopulationSize)
-                {
-                    AddToPopulation(CreateOffspring(), newPopulation);
-                }
-
-                return newPopulation;
-            }
-            catch (Exception e)
+            while (newPopulation.Count < GeneticConfiguration.PopulationSize)
             {
-                throw new Exception("Cant generate new population",e);
+                AddToPopulation(CreateOffspring(), newPopulation);
             }
+
+            return newPopulation;
         }
- 
+
         /// <summary>
         /// Скрещивает два организма с помощью взвешенного выбора
         /// </summary>
         /// <returns>Потомок</returns>
-        private Organism CreateOffspring ()
+        private Organism CreateOffspring()
         {
             var alpha = new Organism();
-            var beta = new Organism();
+            Organism beta = alpha;
             try
             {
                 while (alpha == beta)
@@ -350,10 +273,8 @@ namespace Owl.GeneticAlgorithm.Domain
             }
             catch (Exception e)
             {
-
-                throw new Exception("Cant create offspring",e);
+                throw new Exception("Cant create offspring", e);
             }
-            
         }
 
         /// <summary>
@@ -362,30 +283,82 @@ namespace Owl.GeneticAlgorithm.Domain
         protected void Solve()
         {
             int iterations = 0;
-            double previousMaxFitness = 0;
+            int globalMaximumIterations = 0;
             double maxFitness = 0;
+            double globalMaximum = 0.0;
             _population = GenerateInitialPopulation();
+            var fitnessLog = new List<double>();
+            fitnessLog.Add(0);
 
-            while ((Math.Abs(previousMaxFitness - maxFitness) > maxFitness*GeneticConfiguration.ConvergenceRate || iterations < 2) & iterations < GeneticConfiguration.MaximumIterations)
+
+            while (((globalMaximumIterations < GeneticConfiguration.MaximumIterations*(1-globalMaximum)) || !(Math.Abs(maxFitness - globalMaximum) < 0.01)) &&
+                   (iterations < GeneticConfiguration.MaximumIterations))
             {
-                try
+                if (maxFitness > globalMaximum)
                 {
-                previousMaxFitness = maxFitness;
+                    globalMaximum = maxFitness;
+                    globalMaximumIterations = 0;
+                }
+                else
+                    globalMaximumIterations++;
+
+                fitnessLog.Add(maxFitness);
                 GenerateFitnesses();
                 GenerateLikalihoods();
-                _population = NewPopulation();
                 BestOrganism =
                     (from organism in _population orderby organism.Fitness descending select organism).ToList()[0];
                 maxFitness = BestOrganism.Fitness;
+                _population = NewPopulation();
                 iterations++;
-                    
-                }
-                catch(Exception e)
-                {
-                    throw new Exception("Cant iterate populations",e);
-                }
-            
+            }
         }
+
+        #region Nested type: Config
+
+        public class Config
+        {
+            public IList<GrayCodeConfig> FactorConfigs;
+
+            public Config(double mutationRate, int maximumIterations, double convergenceRate,
+                          IList<GrayCodeConfig> configs, uint populationSize, uint accuracy)
+            {
+                if ((mutationRate < 0) || (mutationRate > 1))
+                    throw new ArgumentOutOfRangeException("mutationRate");
+
+                if (maximumIterations < 1)
+                    throw new ArgumentOutOfRangeException("maximumIterations");
+
+                if ((convergenceRate < 0) || (convergenceRate > 1))
+                    throw new ArgumentOutOfRangeException("mutationRate");
+
+                if (configs.Count < 1)
+                    throw new ArgumentOutOfRangeException("configs");
+
+                if (populationSize < 2)
+                    throw new ArgumentOutOfRangeException("populationSize");
+
+                if ((accuracy > 20) || (accuracy < 1))
+                    throw new ArgumentOutOfRangeException("accuracy");
+
+                if (configs.Any(grayCode => grayCode.Accuracy != accuracy))
+                    throw new Exception("Invalid factor bit accuracy");
+
+                MutationRate = mutationRate;
+                MaximumIterations = maximumIterations;
+                ConvergenceRate = convergenceRate;
+                FactorConfigs = configs;
+                PopulationSize = populationSize;
+                Accuracy = accuracy;
+            }
+
+            public double MutationRate { get; private set; }
+            public double MaximumIterations { get; private set; }
+            public double ConvergenceRate { get; private set; }
+            //public List<GrayCode> Factors { get; set; }
+            public uint PopulationSize { get; private set; }
+            public uint Accuracy { get; private set; }
         }
+
+        #endregion
     }
 }

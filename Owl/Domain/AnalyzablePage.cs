@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Owl.Algorythms;
+using Owl.DataBase.Domain;
 using Owl.GeneticAlgorithm.Repositories;
 using Owl.Repositories;
-using Owl.DataBase.Domain;
 
 namespace Owl.Domain
 {
@@ -20,6 +20,8 @@ namespace Owl.Domain
         private bool[,] _bit;
         private IList<AnalyzableLine> _lines = new List<AnalyzableLine>();
         private Bitmap _original;
+        private int _height;
+        private int _width;
 
         /// <summary>
         /// Инициализирует новый экземпляр класса AnalyzablePage с указанным изображением
@@ -34,27 +36,7 @@ namespace Owl.Domain
         {
             _original = image;
             _ratio = ratio;
-            _bit = Repositories.Functions.BinarizeImage(_original);
-        }
-
-        /// <summary>
-        /// Инициализирует новый экземпляр класса APage с указанным битовым
-        /// представлением. При инициализации произойдет преобразование
-        /// битового представления в изображение.
-        /// </summary>
-        /// <param name="bit">
-        /// Бинирное представление
-        /// </param>
-        public AnalyzablePage(bool[,] bit)
-        {
-            _original = Functions.RasterizeBitMassive(bit);
-            _bit = bit;
-        }
-
-        protected AnalyzablePage()
-        {
-            _original = new Bitmap(1, 1);
-            _bit = new bool[1,1];
+            _bit = Functions.BinarizeImage(_original);
         }
 
         public AnalyzablePage(Page page)
@@ -62,14 +44,17 @@ namespace Owl.Domain
             if (page == null)
                 throw new Exception("Страница не загружена");
 
-            var imageFilePath = page.Book.Directory + "/" + page.FileName;
+            string imageFilePath = page.Book.Directory + "/" + page.FileName;
 
             if (!File.Exists(imageFilePath))
                 throw new Exception("Ошибка чтения изображения");
 
             _original = new Bitmap(imageFilePath);
-            
+
             _bit = Functions.BinarizeImage(_original);
+
+            _height = _original.Height;
+            _width = _original.Width;
         }
 
 /*
@@ -93,7 +78,7 @@ namespace Owl.Domain
             get { return _original; }
             set
             {
-                _bit = Repositories.Functions.BinarizeImage(value, _ratio);
+                _bit = Functions.BinarizeImage(value, _ratio);
                 _original = value;
             }
         }
@@ -108,7 +93,7 @@ namespace Owl.Domain
             get { return _bit; }
             set
             {
-                _original = Repositories.Functions.RasterizeBitMassive(value);
+                _original = Functions.RasterizeBitMassive(value);
                 _bit = value;
             }
         }
@@ -135,10 +120,20 @@ namespace Owl.Domain
         /// <summary>
         /// Возвращает линии.
         /// </summary>
-        public IList<AnalyzableLine> Lines
+        private IList<AnalyzableLine> Lines
         {
             get { return _lines; }
             set { _lines = value; }
+        }
+
+        public int Width
+        {
+            get { return _width; }
+        }
+
+        public int Height
+        {
+            get { return _height; }
         }
 
         public void AddLine(AnalyzableLine analyzableLine)
@@ -147,70 +142,36 @@ namespace Owl.Domain
             Lines.Add(analyzableLine);
         }
 
-        public int HeightRange ()
+        public int HeightRange()
         {
-            try
-            {
-                var heights = _lines.Select(line => line.Height).AsParallel().ToList();
-                if (heights.Count == 0)
-                    return 0;
-                return heights.Max() - heights.Min();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Cant calculate heights range",e);
-            }
-            
+            List<int> heights = _lines.Select(line => line.Height).AsParallel().ToList();
+            if (heights.Count == 0)
+                return Height;
+            return heights.Max() - heights.Min();
         }
 
-        public int DistanceRange ()
+        public int DistanceRange()
         {
-            try
+            var distances = new List<int>();
+            int lastLineEnd = Lines[0].End;
+            for (int i = 1; i < Lines.Count; i++)
             {
-                var distances = new List<int>();
-                var lastLineEnd = Lines[0].End;
-                for (int i = 1; i < Lines.Count; i++)
-                {
-                    distances.Add(Lines[i].End - lastLineEnd);
-                    lastLineEnd = Lines[i].End;
-                }
-                if (distances.Count == 0)
-                    return 0;
-                return distances.Max() - distances.Min();
+                distances.Add(Lines[i].End - lastLineEnd);
+                lastLineEnd = Lines[i].End;
             }
-            catch (Exception e)
-            {
-                throw new Exception("Cant calculate distances range",e);
-            }
-            
+            if (distances.Count == 0)
+                return Height;
+            return distances.Max() - distances.Min();
         }
 
-        public double DensityRange ()
+        public double DensityRange()
         {
-            try
-            {
-                var densities = Lines.Select(line => line.Density()).AsParallel().ToList();
+            List<double> densities = Lines.Select(line => line.Density()).AsParallel().ToList();
 
-                if (densities.Count == 0)
-                    return 0;
+            if (densities.Count == 0)
+                return 1;
 
-                return densities.Max() - densities.Min();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Cant calculate densitys range",e);
-            }
-            
-        }
-
-        public int Width
-        {
-            get { return Original.Width; }
-        }
-
-        public int Height
-        {
-            get { return Original.Height; }
+            return densities.Max() - densities.Min();
         }
 
         /// <summary>
@@ -219,7 +180,7 @@ namespace Owl.Domain
         /// <returns>
         /// Массив со средними расстояниями между точками для каждой строчки.
         /// </returns>
-        public double[] Ranges()
+        public IEnumerable<double> Ranges()
         {
             var ranges = new double[_original.Height];
 
@@ -276,99 +237,6 @@ namespace Owl.Domain
         }
 
         /// <summary>
-        /// Анализирует изображение и автоматически делит его на строки. DEPRECATED.
-        /// </summary>
-        /// <param name="likelihood">Допустимая разность между текстом и пустотами.</param>
-        public void FindLines(float likelihood = 0.01f)
-        {
-            //Посчитаем количество точек в строках
-            double[] summ = Summ;
-
-            //Найдем максимальное и минимальное количество точек в строках
-            var max = (int) summ.Max();
-            var min = (int) summ.Min();
-
-            //Наименьшее значение не должно быть нулевым
-            min = (min == 0) ? 1 : min;
-
-            /* Инициируем начальный параметр минимального количества точек как целую часть 
-                 * корня квадратного из произведения минимального и максимального количества точек   */
-            double minimalDots = Math.Sqrt(min*max);
-
-            int summHeight = 0;
-
-            //Инициируем разность между выделенными (принадлежащими тексту) и невыделенными строками
-            //как максимально возможную
-            float delta = _original.Height;
-
-            //Пытаемся подобрать нужный минимальный порог.
-            //Пока разность между выделенными и невыделенными строками не будет минимальна
-            while (Math.Abs(delta) > likelihood*(_original.Height))
-            {
-                int l = 0;
-                summHeight = 0;
-
-                //Очищаем список строк текста.
-                _lines = new List<AnalyzableLine>();
-
-                //Совершим итерации по всем строкам бинарного массива.
-                while (l < (_original.Height - 1))
-                {
-                    //Если количество точек в строке массива больше минимальной, 
-                    //начнем строку текста
-                    if (summ[l] >= minimalDots)
-                    {
-                        //Начало строки  - текущая строчка массива.
-                        int start = l;
-
-                        //Создадим строку в месте, где количество точек больше минимального
-                        var line = new AnalyzableLine(start, 0);
-
-                        //Произведем итерации по строчкам до тех пор, пока количество точек
-                        //не перестанет быть минимальным и не будет достигнут конец изображения.
-                        while (summ[l] >= minimalDots)
-                        {
-                            l++;
-                            //Проверим на конец массива
-                            if (l == _original.Height)
-                                break;
-                        }
-                        int height = l - start;
-
-                        //Вычислим высоту
-                        line.Height = height;
-                        summHeight += height;
-
-                        //Добавим строку в список строк страницы.
-                        _lines.Add(line);
-                    }
-
-                    l++;
-                }
-
-                //Вычислим разность между межстрочным пространством и суммарной высотой строк.
-                delta = summHeight*2 - _original.Height;
-
-                //Изменим параметр минимального количества точек.
-                float k = delta/_original.Height;
-                minimalDots = Math.Abs(minimalDots + minimalDots*k);
-            }
-
-            //Посчитаем среднюю высоту строчки
-            int medianHeight;
-            if (_lines.Count > 0)
-                medianHeight = summHeight/_lines.Count;
-            else
-                //Если нет строчек, выдаем исключение.
-                throw new Exception("No lines found");
-
-            //Удалим все строчки, высота которых меньше средней
-            List<AnalyzableLine> newlines = _lines.Where(line => line.Height > medianHeight).ToList();
-
-            _lines = newlines;
-        }
-
-        /// <summary>
         /// Отображает линии, соответствующие началу и концу строчки на PictureBox.
         /// </summary>
         /// <param name="pictureOutput">PictureBox, на котором надо отобразить линии.</param>
@@ -406,20 +274,12 @@ namespace Owl.Domain
 
         public void SegmentatePage()
         {
-            try
-            {
-                var page = this;
-                var factors = new List<GrayCode> { new GrayCode(0, 2,20,8) };
-                var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factors, 20,8);
-                page.Lines = new List<AnalyzableLine>();
-                page = new PageSegmentator(config, page).SegmentedPage();
-                Lines = page.Lines;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Cant segmentate page",e);
-            }
-            
+            AnalyzablePage page = this;
+            var factorConfig = new List<GrayCodeConfig> {new GrayCodeConfig(2, 20)};
+            var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factorConfig, 20, 8);
+            page.Lines = new List<AnalyzableLine>();
+            page = new PageSegmentator(config, page).SegmentedPage();
+            Lines = page.Lines;
         }
     }
 
@@ -429,10 +289,9 @@ namespace Owl.Domain
     /// </summary>
     public class AnalyzableLine
     {
+        private readonly List<AnalyzableWord> _words = new List<AnalyzableWord>();
         private int _height;
         private int _start;
-        private AnalyzablePage _analyzablePage;
-        private List<AnalyzableWord> _words = new List<AnalyzableWord>();
 
         /// <summary>
         /// Инициализирует класс строки Line с данными начала строки и её высоты.
@@ -445,50 +304,14 @@ namespace Owl.Domain
             _height = height;
         }
 
-        public void AddWord (AnalyzableWord analyzableWord)
-        {
-            analyzableWord.AnalyzableLine = this;
-            _words.Add(analyzableWord);
-        }
 
-
-        public AnalyzablePage AnalyzablePage
-        {
-            get { return _analyzablePage; }
-            set { _analyzablePage = value; }
-        }
-
-
-        public AnalyzableLine()
-        {
-            _start = 0;
-            _height = 0;
-        }
+        public AnalyzablePage AnalyzablePage { get; set; }
 
         public int End
         {
-            get{return _start + _height;}
+            get { return _start + _height; }
         }
 
-        public double Density ()
-        {
-            try
-            {
-                var blackPixels = 0;
-                var end = End;
-                for (int y = _start; y < end; y++)
-                    for (int x = 0; x < AnalyzablePage.Width; x++)
-                        if (AnalyzablePage.Bit[x, y])
-                            blackPixels++;
-                return blackPixels / (double)(Height * AnalyzablePage.Width);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Cant calculate density",e);
-            }
-            
-        }
-        
         /// <summary>
         /// Передает или получает координату начала строки.
         /// </summary>
@@ -508,17 +331,22 @@ namespace Owl.Domain
             set { _height = value; }
         }
 
-        /// <summary>
-        /// Возвращает изображение строки.
-        /// </summary>
-        public Bitmap Image
+        public void AddWord(AnalyzableWord analyzableWord)
         {
-            get
-            {
-                var original = _analyzablePage.Original;
-                var rectangle = new Rectangle(_start, 0, original.Width, _height);
-                return original.Clone(rectangle, original.PixelFormat);
-            }
+            analyzableWord.AnalyzableLine = this;
+            _words.Add(analyzableWord);
+        }
+
+        public double Density()
+        {
+
+                int blackPixels = 0;
+                int end = End;
+                for (int y = _start; y < end; y++)
+                    for (int x = 0; x < AnalyzablePage.Width; x++)
+                        if (AnalyzablePage.Bit[x, y])
+                            blackPixels++;
+                return blackPixels/(double) (Height*AnalyzablePage.Width + 1);
         }
     }
 
@@ -526,17 +354,11 @@ namespace Owl.Domain
     /// <summary>
     /// Класс слова. 
     /// </summary> 
-    public class AnalyzableWord
+    public abstract class AnalyzableWord
     {
         private readonly int _start;
         private readonly int _width;
         private AnalyzableLine _analyzableLine;
-
-        public AnalyzableLine AnalyzableLine
-        {
-            get { return _analyzableLine; }
-            set { _analyzableLine = value; }
-        }
 
         protected AnalyzableWord(int start, int width)
         {
@@ -544,18 +366,9 @@ namespace Owl.Domain
             _width = width;
         }
 
-        /// <summary>
-        /// Возвращает изображение слова.
-        /// </summary>
-        public Bitmap Image
+        public AnalyzableLine AnalyzableLine
         {
-            get
-            {
-                var original = _analyzableLine.AnalyzablePage.Original;
-                var rectangle = new Rectangle(_analyzableLine.Start, _start, _width, _analyzableLine.Height);
-                return original.Clone(rectangle, original.PixelFormat);
-            }
+            set { _analyzableLine = value; }
         }
     }
 }
-    

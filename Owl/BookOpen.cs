@@ -54,10 +54,6 @@ namespace Owl
 
         private delegate void InvokeDelegate();
 
-        private void BookOpenLoad(object sender, EventArgs e)
-        {
-        }
-
         private void OkButtonClick(object sender, EventArgs e)
         {
             if (BookList.SelectedIndex == -1) return;
@@ -103,6 +99,11 @@ namespace Owl
         {
 
             BeginInvoke(new InvokeDelegate(LoadBooks));
+        }
+
+        private void BookOpenFormClosed(object sender, FormClosedEventArgs e)
+        {
+            _redactor.Enabled = true;
         }
     }
 }

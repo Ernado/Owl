@@ -117,7 +117,7 @@
             this.Name = "BookOpen";
             this.ShowInTaskbar = false;
             this.Text = "Открыть книгу";
-            this.Load += new System.EventHandler(this.BookOpenLoad);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.BookOpenFormClosed);
             this.Shown += new System.EventHandler(this.BookOpenShown);
             this.BookListPanel.ResumeLayout(false);
             this.DialogPanel.ResumeLayout(false);

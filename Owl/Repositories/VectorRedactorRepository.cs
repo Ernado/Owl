@@ -5,7 +5,9 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Owl.DataBase.Domain;
 using Owl.Domain;
+using Point = System.Drawing.Point;
 
 namespace Owl.Repositories
 {
@@ -247,6 +249,17 @@ namespace Owl.Repositories
             if (ActiveGlyph is SolidGlyph)
                 (ActiveGlyph as SolidGlyph).DrawBounds();
             //_redactor.Invalidate();
+        }
+
+        public void LoadPage(Page page)
+        {
+            MainGlyph = new CanvasGlyph(WordConfig) { Redactor = _redactor, ParentVectorRedactor = this };
+            foreach (var line in page.Lines)
+            {
+                var lineGlyph = MainGlyph.InsertNewLineGlyph(line);
+                foreach (var word in line.Words)
+                    lineGlyph.InsertNewWordGlyph(word);
+            }
         }
     }
 }

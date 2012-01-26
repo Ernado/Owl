@@ -161,10 +161,10 @@ namespace Owl.Domain
             if (Figure == null)
                 throw new NullReferenceException("Figure is null");
 
-            if (Figure is SolidFigure)
-                (Figure as SolidFigure).Move(dx, dy);
-            else
+            if (!(Figure is SolidFigure))
                 throw new ArgumentException("Figure must be solid");
+
+            (Figure as SolidFigure).Move(dx, dy);
         }
 
         public virtual void ProcessSelection()
@@ -174,18 +174,34 @@ namespace Owl.Domain
 
         public override void ProcessMove(Point offset)
         {
-            if (ParentVectorRedactor.RedactorState == RedactorStates.Dragging)
-            {
-                Move(offset.X, offset.Y);
-                Redactor.InvalidateInterfaceBox();
-            }
+            if (ParentVectorRedactor.RedactorState != RedactorStates.Dragging) return;
 
+            Move(offset.X, offset.Y);
+            UpdateData();
+            Redactor.InvalidateInterfaceBox();
+        }
+
+        protected virtual void UpdateData()
+        {
+            throw new NotImplementedException();
         }
     }
 
     class WordGlyph : SolidGlyph
     {
         public Word Word { get; private set; }
+
+        private List<Figure> Figures { get; set; }
+
+        public override void Move(int dx, int dy)
+        {
+            base.Move(dx, dy);
+            foreach (var figure in Figures)
+            {
+                //TODO
+            }
+
+        }
 
         public WordGlyph(Word word)
         {
@@ -196,12 +212,21 @@ namespace Owl.Domain
             if (Word.Polygons != null && Word.Polygons.Count > 0)
                 foreach (var polygon in Word.Polygons)
                     path.AddPath(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints()), false);
+            Figures = new List<Figure>();
+
+            if (Word.Polygons != null && Word.Polygons.Count > 0)
+            {
+                foreach (var polygon in Word.Polygons)
+                    Figures.Add(new SolidFigure(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints())));
+
+                foreach (var figure in Figures)
+                    Figure.Path.AddPath(figure.Path, false);
+            }
+
 
             Figure = new SolidFigure(path);
             Childs = new List<Glyph>();
         }
-
-        
 
         public override void ProcessSelection()
         {
@@ -215,11 +240,37 @@ namespace Owl.Domain
         {
             return Figure.Intersects(point);
         }
+
+        protected override void UpdateData()
+        {
+            Word.Polygons = new List<Polygon>();
+            var solidFigure = Figure as SolidFigure;
+            if (solidFigure == null)
+                throw new ArgumentNullException();
+
+            foreach (var figure in Figures)
+            {
+                var points = figure.Path.PathPoints;
+                var polygon = new Polygon();
+                
+                foreach (var point in points)
+                    polygon.AddPoint(new DataBase.Domain.Point {X = point.X, Y = point.Y});
+
+                Word.AddPolygon(polygon);
+            }
+        }
     }
 
     class LineGlyph : SolidGlyph
     {
         private Line Line { get; set; }
+
+        public WordGlyph InsertNewWordGlyph (Word word)
+        {
+            var wordGlyph = new WordGlyph(word) {Config = ParentVectorRedactor.WordConfig};
+            InsertChild(wordGlyph);
+            return wordGlyph;
+        } 
 
         public LineGlyph(Line line)
         {
@@ -227,7 +278,7 @@ namespace Owl.Domain
 
             var path = new GraphicsPath();
 
-            if (line.Polygon.Points != null && line.Polygon.Points.Count > 0)
+            if (line.Polygon != null && (line.Polygon.Points != null && line.Polygon.Points.Count > 0))
                 path = Functions.GeneratePathFromPoints(Line.Polygon.ConvertToDrawingPoints());
 
             Figure = new SolidFigure(path);
@@ -253,6 +304,19 @@ namespace Owl.Domain
 
             Redactor.LoadLine(Line);
         }
+
+        protected override void UpdateData()
+        {
+            Line.Polygon = new Polygon();
+            var solidFigure = Figure as SolidFigure;
+            if (solidFigure == null)
+                throw new ArgumentNullException();
+
+            var points = solidFigure.Path.PathPoints;
+
+            foreach (var pathPoint in points)
+                Line.Polygon.AddPoint(new DataBase.Domain.Point {X = pathPoint.X, Y = pathPoint.Y});
+        }
     }
 
     class CanvasGlyph : Glyph
@@ -266,6 +330,13 @@ namespace Owl.Domain
         public override void ProcessMove(Point location)
         {
             return; 
+        }
+
+        public LineGlyph InsertNewLineGlyph(Line line)
+        {
+            var lineGlyph = new LineGlyph(line) { Config = ParentVectorRedactor.LineConfig };
+            InsertChild(lineGlyph);
+            return lineGlyph;
         }
 
         protected override bool Intersects(Point point)
@@ -444,5 +515,6 @@ namespace Owl.Domain
         bool ProcessModeChangeToCreate();
         bool ProcessModeChangeToAdd();
         void ProcessMouseDown(MouseEventArgs e);
+        void LoadPage(Page page);
     }
 }

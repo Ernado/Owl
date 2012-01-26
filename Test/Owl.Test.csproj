@@ -103,12 +103,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookRepositoryTest.cs" />
+    <Compile Include="DiophantineSolver.cs" />
     <Compile Include="GrayCodeTest.cs" />
     <Compile Include="OwlTest.cs" />
+    <Compile Include="GeneticAlgorythmTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedactorTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Console\ConsoleTests.csproj">
+      <Project>{DAA6D6CB-58BF-4D50-AE47-1A49129BE239}</Project>
+      <Name>ConsoleTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Owl\Owl.csproj">
       <Project>{432B3E75-A7BA-41B3-A6DF-783C43BD99C0}</Project>
       <Name>Owl</Name>
@@ -116,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <Shadow Include="Тестовые ссылки\Owl.accessor" />
+  </ItemGroup>
+  <ItemGroup>
+    <Shadow Include="Тестовые ссылки\Console.accessor" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
