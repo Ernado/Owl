@@ -46,7 +46,9 @@ namespace Owl.DataBase.Mappings
                 .Cascade.All()
                 .Inverse();
             References(x => x.Page);
-            HasOne(x => x.Polygon);
+            HasOne(x => x.Polygon)
+                .Cascade.All()
+                .Constrained();
         }
     }
 
