@@ -12,6 +12,10 @@ namespace Owl.GeneticAlgorithm.Domain
         public Config GeneticConfiguration;
         private IList<Organism> _population;
 
+        /// <summary>
+        /// Мутирует каждый ген организма с определенной вероятностью
+        /// </summary>
+        /// <param name="organism">Организм для мутации</param>
         private void MutateOrganism(Organism organism)
         {
             double mutationRate = GeneticConfiguration.MutationRate;
@@ -32,6 +36,12 @@ namespace Owl.GeneticAlgorithm.Domain
             }
         }
 
+        /// <summary>
+        /// Выполняет операцию кроссовера к генам двух особей
+        /// </summary>
+        /// <param name="alpha">Инициирующий</param>
+        /// <param name="beta">Инициируемый</param>
+        /// <returns>Потомок</returns>
         private Organism Crossover(Organism alpha, Organism beta)
         {
             try
@@ -65,7 +75,12 @@ namespace Owl.GeneticAlgorithm.Domain
                 throw new Exception("Cant crossover", e);
             }
         }
-
+        
+        /// <summary>
+        /// Добавляет организм в популяцию. Проверяет на валидность организм.
+        /// </summary>
+        /// <param name="organism">Организм</param>
+        /// <param name="population">Популяция</param>
         private void AddToPopulation(Organism organism, List<Organism> population)
         {
             if (organism.GenesCount == 0)
@@ -75,14 +90,6 @@ namespace Owl.GeneticAlgorithm.Domain
                 throw new ArgumentOutOfRangeException("organism");
 
             population.Add(organism);
-        }
-
-        private void AddToPopulation(Organism organism)
-        {
-            if (organism.GenesCount == 0 || organism.Factors.Count == 0)
-                throw new ArgumentOutOfRangeException("organism");
-
-            _population.Add(organism);
         }
 
         /// <summary>
@@ -120,6 +127,11 @@ namespace Owl.GeneticAlgorithm.Domain
             }
         }
 
+        /// <summary>
+        /// Генерирует фактор со случайным значением
+        /// </summary>
+        /// <param name="config">Конфигурация фактора</param>
+        /// <returns>Случайный фактор</returns>
         private GrayCode GenerateRandomFactor(GrayCodeConfig config)
         {
             try
@@ -135,14 +147,18 @@ namespace Owl.GeneticAlgorithm.Domain
             }
         }
 
+        /// <summary>
+        /// Генерирует организм с факторами, содержащими случайные 
+        /// </summary>
+        /// <returns></returns>
         private Organism GenerateRandomOrganism()
         {
             try
             {
                 var organism = new Organism();
                 foreach (
-                    GrayCode factor in
-                        GeneticConfiguration.FactorConfigs.AsParallel().AsOrdered().Select(GenerateRandomFactor))
+                    var factor in
+                        GeneticConfiguration.FactorConfigs.Select(GenerateRandomFactor))
                 {
                     organism.AddFactorAndCode(factor);
                 }
@@ -158,9 +174,17 @@ namespace Owl.GeneticAlgorithm.Domain
         private IList<Organism> GenerateInitialPopulation()
         {
             var population = new List<Organism>();
-            while (population.Count < GeneticConfiguration.PopulationSize)
-                AddToPopulation(GenerateRandomOrganism(), population);
-
+            
+            try
+            {
+                while (population.Count < GeneticConfiguration.PopulationSize)
+                    AddToPopulation(GenerateRandomOrganism(), population);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant generate initial population");
+            }
+            
             return population;
         }
 
@@ -211,10 +235,8 @@ namespace Owl.GeneticAlgorithm.Domain
             try
             {
                 double fitnessSum = FitnessSumOfPopulation();
-                foreach (Organism organism in _population.AsParallel())
-                {
-                    organism.GenerateLikelihood(fitnessSum);
-                }
+                var parallelQuery = _population.AsParallel();
+                parallelQuery.ForAll((e)=>e.GenerateLikelihood(fitnessSum));
             }
             catch (Exception e)
             {
@@ -226,28 +248,43 @@ namespace Owl.GeneticAlgorithm.Domain
 
         private void CalculateFitness(Organism organism)
         {
-            var fitness = Fitness(organism);
-            organism.Fitness = fitness;
+            try
+            {
+                var fitness = Fitness(organism);
+                organism.Fitness = fitness;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant calculate fitness",e);
+            }
         }
 
         private void GenerateFitnesses()
         {
-            var parallelQuery = _population.AsParallel();
-            parallelQuery.ForAll(CalculateFitness);
-            /*foreach (var organism in _population)
+            try
             {
-                organism.Fitness = Fitness(organism);
-            }*/
+                var parallelQuery = _population.AsParallel().AsOrdered();
+                parallelQuery.ForAll(CalculateFitness);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant generate fitnesses",e);
+            }
+            
         }
 
         private IList<Organism> NewPopulation()
         {
             var newPopulation = new List<Organism>();
-            //newPopulation.AddRange(_population.AsParallel().Select(organism => CreateOffspring()));
-
-            while (newPopulation.Count < GeneticConfiguration.PopulationSize)
+            
+            try
             {
-                AddToPopulation(CreateOffspring(), newPopulation);
+                while (newPopulation.Count < GeneticConfiguration.PopulationSize)
+                    AddToPopulation(CreateOffspring(), newPopulation);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant generate new population",e);
             }
 
             return newPopulation;
@@ -290,26 +327,32 @@ namespace Owl.GeneticAlgorithm.Domain
             var fitnessLog = new List<double>();
             fitnessLog.Add(0);
 
-
-            while (((globalMaximumIterations < GeneticConfiguration.MaximumIterations*(1-globalMaximum)) || !(Math.Abs(maxFitness - globalMaximum) < 0.01)) &&
-                   (iterations < GeneticConfiguration.MaximumIterations))
+            try
             {
-                if (maxFitness > globalMaximum)
+                while (((globalMaximumIterations < GeneticConfiguration.MaximumIterations * (1 - globalMaximum)) || !(Math.Abs(maxFitness - globalMaximum) < 0.01)) &&
+                   (iterations < GeneticConfiguration.MaximumIterations))
                 {
-                    globalMaximum = maxFitness;
-                    globalMaximumIterations = 0;
-                }
-                else
-                    globalMaximumIterations++;
+                    if (maxFitness > globalMaximum)
+                    {
+                        globalMaximum = maxFitness;
+                        globalMaximumIterations = 0;
+                    }
+                    else
+                        globalMaximumIterations++;
 
-                fitnessLog.Add(maxFitness);
-                GenerateFitnesses();
-                GenerateLikalihoods();
-                BestOrganism =
-                    (from organism in _population orderby organism.Fitness descending select organism).ToList()[0];
-                maxFitness = BestOrganism.Fitness;
-                _population = NewPopulation();
-                iterations++;
+                    fitnessLog.Add(maxFitness);
+                    GenerateFitnesses();
+                    GenerateLikalihoods();
+                    BestOrganism =
+                        (from organism in _population orderby organism.Fitness descending select organism).ToList()[0];
+                    maxFitness = BestOrganism.Fitness;
+                    _population = NewPopulation();
+                    iterations++;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant solve",e);
             }
         }
 
@@ -337,7 +380,7 @@ namespace Owl.GeneticAlgorithm.Domain
                 if (populationSize < 2)
                     throw new ArgumentOutOfRangeException("populationSize");
 
-                if ((accuracy > 20) || (accuracy < 1))
+                if ((accuracy > 20) || (accuracy <= 1))
                     throw new ArgumentOutOfRangeException("accuracy");
 
                 if (configs.Any(grayCode => grayCode.Accuracy != accuracy))
