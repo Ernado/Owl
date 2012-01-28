@@ -71,7 +71,7 @@ namespace Owl
             _redactor.Repository.Add(book);
             _createdBook = _redactor.Repository.GetByName(BookNameBox.Text);
             
-            _redactor.LoadBook(_createdBook);
+            _redactor.LoadElement(_createdBook);
 
             Cursor = Cursors.Default;
             _redactor.Enabled = true;

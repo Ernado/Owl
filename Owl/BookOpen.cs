@@ -33,15 +33,18 @@ namespace Owl
         {
             _books = _redactor.Repository.GetAll().ToList();
             Cursor = Cursors.WaitCursor;
+            
             foreach (var book in _books)
             {
                 var s = book.Name;
                 if (book.Pages.Count == 0)
                     s += " (Пустой)";
                 else
-                    s += " (Страниц: " + book.Pages.Count + ") ";
+                    s += String.Format(" (Страниц: {0})", book.Pages.Count);
+                
                 BookList.Items.Add(s);
             }
+
             if (BookList.Items.Count == 0)
             {
                 okButton.Enabled = false;
@@ -49,6 +52,7 @@ namespace Owl
             }
             else
                 BookList.SelectedIndex = 0;
+
             Cursor = Cursors.Default;
         }
 
@@ -57,7 +61,7 @@ namespace Owl
         private void OkButtonClick(object sender, EventArgs e)
         {
             if (BookList.SelectedIndex == -1) return;
-            _redactor.LoadBook(_selectedBook);
+            _redactor.LoadElement(_selectedBook);
             _redactor.Enabled = true;
             Close();
         }
@@ -89,7 +93,7 @@ namespace Owl
         {
             if (_selectedBook != null)
             {
-                _redactor.LoadBook(_selectedBook);
+                _redactor.LoadElement(_selectedBook);
                 _redactor.Enabled = true;
                 Close();
             }
