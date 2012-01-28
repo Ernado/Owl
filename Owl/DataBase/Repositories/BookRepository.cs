@@ -11,7 +11,7 @@ namespace Owl.DataBase.Repositories
     /// </summary>
     public class BookRepository : IBookRepository
     {
-        private readonly ISession _session;
+        private ISession _session;
         public BookRepository(string dbFile)
         {
             _session = NHibertaneHelper.OpenSession(dbFile);
@@ -86,6 +86,12 @@ namespace Owl.DataBase.Repositories
             var books = _session.CreateCriteria(typeof (Book))
                     .List<Book>();
                 return books;
+        }
+
+        public void Close()
+        {
+            _session.Close();
+            _session = null;
         }
     }
 }
