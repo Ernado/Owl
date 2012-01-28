@@ -85,6 +85,11 @@ namespace Owl.Algorythms
             }
         }
 
+        public override string ToString()
+        {
+            return String.Format("{0}", Value);
+        }
+
         /// <summary>
         /// Возвращает или задает код Грея в строковом варианте.
         /// </summary>
