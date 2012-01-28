@@ -115,6 +115,7 @@
             this.ShowInTaskbar = false;
             this.Text = "Открыть страницу";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PageOpenFormClosed);
+            this.Shown += new System.EventHandler(this.PageOpenShown);
             this.DialogPanel.ResumeLayout(false);
             this.BookListPanel.ResumeLayout(false);
             this.ResumeLayout(false);

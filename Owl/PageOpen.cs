@@ -17,7 +17,7 @@ namespace Owl
         private IList<Page> _pages;
         private Page _selectedPage;
 
-        private void LoadBooks()
+        private void LoadPages()
         {
             _pages = _book.Pages;
             Cursor = Cursors.WaitCursor;
@@ -28,8 +28,10 @@ namespace Owl
                     if (page.Lines.Count == 0)
                         s += " (Пустая)";
                     else
-                        s += " (Строк: " + page.Lines.Count + ") ";
-                    s += " [" + page.FileName + "]";
+                        s += String.Format(" (Строк: {0} )", page.Lines.Count);
+
+                    s += String.Format(" [Файл: {0}]", page.FileName);
+
                     PageList.Items.Add(s);
                 }
             if (PageList.Items.Count == 0)
@@ -53,14 +55,13 @@ namespace Owl
             _book = _redactor.Book;
             if (_book == null)
                 Close();
-            LoadBooks();
         }
 
         private void OkButtonClick(object sender, EventArgs e)
         {
             if (_selectedPage != null)
             {
-                _redactor.LoadPage(_selectedPage);
+                _redactor.LoadElement(_selectedPage);
             }
             Close();
         }
@@ -86,6 +87,11 @@ namespace Owl
         private void PageListSelectedIndexChanged(object sender, EventArgs e)
         {
             _selectedPage = _pages[PageList.SelectedIndex];
+        }
+
+        private void PageOpenShown(object sender, EventArgs e)
+        {
+            BeginInvoke(new InvokeDelegate(LoadPages));
         }
     }
 }

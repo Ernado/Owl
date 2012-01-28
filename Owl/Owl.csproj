@@ -134,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorythms\GeneticAlgorithm.cs" />
+    <Compile Include="Repositories\Hystogram.cs" />
     <Compile Include="BookCreate.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -159,7 +160,7 @@
     <Compile Include="GeneticAlgorithm\Domain\GeneticAlgorithm.cs" />
     <Compile Include="GeneticAlgorithm\Domain\Organism.cs" />
     <Compile Include="Domain\Layout.cs" />
-    <Compile Include="GeneticAlgorithm\Repositories\PageSegmentator.cs" />
+    <Compile Include="GeneticAlgorithm\Repositories\SimpleSegmentator.cs" />
     <Compile Include="PageCreate.cs">
       <SubType>Form</SubType>
     </Compile>
