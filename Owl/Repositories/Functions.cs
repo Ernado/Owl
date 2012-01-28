@@ -103,5 +103,20 @@ namespace Owl.Repositories
                         bit[x, y] = true;
             return bit;
         }
+
+        public static float[] FeautureScaling(float[] array)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+
+            var scaledArray = array;
+            //Нормализуем массив
+            float min = array.Min();
+            float range = array.Max() - array.Min();
+            for (int i = 0; i < array.Length; i++)
+            {
+                scaledArray[i] = (array[i] - min) / range;
+            }
+            return scaledArray;
+        }
     }
 }
