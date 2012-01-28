@@ -220,6 +220,7 @@ namespace Owl.Repositories
             _redactor.Cursor = cursor;
             LastCursorLocation = location;
         }
+
         /// <summary>
         /// Обработка кликов мыши
         /// </summary>
@@ -259,6 +260,46 @@ namespace Owl.Repositories
                 var lineGlyph = MainGlyph.InsertNewLineGlyph(line);
                 foreach (var word in line.Words)
                     lineGlyph.InsertNewWordGlyph(word);
+            }
+        }
+
+        public void ProcessActivation (Line line)
+        {
+            var activeGlyph = ActiveGlyph as LineGlyph;
+            if (activeGlyph != null && activeGlyph.Line == line)
+                return;
+
+            foreach (var lineGlyph in MainGlyph.Childs.Select(child => (child as LineGlyph)))
+            {
+                if (lineGlyph == null)
+                    throw new NullReferenceException();
+
+                if (lineGlyph.Line==line)
+                    lineGlyph.ProcessSelection();
+            }
+        }
+
+        public void ProcessActivation(Word word)
+        {
+            var activeGlyph = ActiveGlyph as WordGlyph;
+            if (activeGlyph != null && activeGlyph.Word == word)
+                return;
+
+            foreach (var lineGlyph in MainGlyph.Childs.Select(child => (child as LineGlyph)))
+            {
+                if (lineGlyph == null)
+                    throw new NullReferenceException();
+
+                if (lineGlyph.Line == word.Line)
+                    foreach (var wordGlyph in lineGlyph.Childs.Select(child => (child as WordGlyph)))
+                    {
+                        if (wordGlyph == null)
+                            throw new NullReferenceException();
+
+                        if (wordGlyph.Word == word)
+                            wordGlyph.ProcessSelection();
+                    }
+
             }
         }
     }
