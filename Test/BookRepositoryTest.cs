@@ -43,6 +43,8 @@ namespace Owl.Test
         private static ISessionFactory _sessionFactory;
         private const string DbFile = "test.db";
         private static Configuration _configuration;
+        private static readonly Polygon Polygon = new Polygon() {Points = {new Point() {X = 5, Y = 5}}};
+        private readonly Line _line = new Line() {Number = 1, Polygon = Polygon};
         private readonly Book[] _books = new[]
                                              {
                                                  new Book {Directory = "alpha", Name = "alpha", Pages = new List<Page>{new Page{FileName = "alphapage",Number = 1}}},
@@ -63,6 +65,8 @@ namespace Owl.Test
                     foreach (var page in book.Pages)
                     {
                         page.Book = book;
+                        _line.Polygon.Points[0].Polygon = Polygon;
+                        page.AddLine(_line);
                     }
                     session.Save(book);   
                 }
