@@ -123,9 +123,8 @@ namespace Owl.DataBase.Domain
         public virtual void LoadPointList (IEnumerable<System.Drawing.Point> points)
         {
             _points.Clear();
-            foreach (var point in points)
+            foreach (var newpoint in points.Select(point => new Point {X = point.X, Y = point.Y}))
             {
-                var newpoint = new Point {X = point.X, Y = point.Y};
                 AddPoint(newpoint);
             }
         }
@@ -138,11 +137,31 @@ namespace Owl.DataBase.Domain
     {
         public Line ()
         {
+            Polygons = new List<Polygon>();
             Polygon = new Polygon();
         }
 
         public virtual Guid UID { get; protected set; }
-        public virtual Polygon Polygon { get; set; } //Многоугольник, описывающий строку
+        public virtual Polygon Polygon
+        {
+            get
+            {
+                if (Polygons.Count == 0) return null;
+                return Polygons[0];
+            }
+            set
+            {
+                if(Polygons.Count == 0)
+                {
+                    Polygons.Add(value);
+                    return;
+                }
+                Polygons[0]=(value);
+            }
+        }
+
+        protected internal virtual IList<Polygon> Polygons { get; set; }
+        
         public virtual IList<Word> Words
         {
             get { return _words; }
