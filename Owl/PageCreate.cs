@@ -85,14 +85,20 @@ namespace Owl
         {
             if(IsNumberFree((int)pageNumberInput.Value)&&File.Exists(_fullPath))
             {
+                var random = new Random();
                 Enabled = false;
                 Cursor = Cursors.WaitCursor;
                 _page.Number = (int)pageNumberInput.Value;
-                _page.FileName = _page.Number.ToString() + "_" + _page.FileName;
+                var filename = _page.Number.ToString() + "_" + _page.FileName;
+                while (File.Exists(filename))
+                {
+                    filename = random.Next(10).ToString() + filename;
+                }
+                _page.FileName = filename;
                 File.Copy(_fullPath, _redactor.Book.Directory + "//" + _page.FileName);
                 _page.Book = _redactor.Book;
                 _redactor.Book.AddPage(_page);
-                _redactor.LoadPage(_page);
+                _redactor.LoadElement(_page);
                 Enabled = true;
                 Cursor = Cursors.Default;
                 Close();
