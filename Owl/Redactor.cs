@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
@@ -24,8 +26,8 @@ namespace Owl
 
         private VectorRedactorRepository.VectorRedactorConfig _vectorRedactorConfig;
         private const string Dbfile = "database.db";
-        private string _programName = "Редактор";
-        public readonly BookRepository Repository = new BookRepository(Dbfile);
+        private string _programName = "ИТРИТ Редактор Прототип";
+        public readonly BookRepository Repository;
         
         private Graphics GetCanvas()
         {
@@ -35,6 +37,8 @@ namespace Owl
         public Redactor()
         {
             InitializeComponent();
+            CheckForDbFile();
+            Repository = new BookRepository(Dbfile);
             _vectorRedactorConfig = new VectorRedactorRepository.VectorRedactorConfig
                                         {
                                             LineBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 255)),
@@ -45,27 +49,116 @@ namespace Owl
                                         };
             interfaceBox.Image = new Bitmap(100, 100);
             _vectorRedactor = new VectorRedactorRepository(GetCanvas(), this, _vectorRedactorConfig);
+            UpdateHeader();
         }
 
-        public void LoadLine (Line line)
+        /// <summary>
+        /// Обновляет заголовок окна программы
+        /// </summary>
+        private void UpdateHeader()
+        {
+            Text = String.Format("{0}",_programName);
+            if (Book != null)
+                Text = Text + String.Format(": {0} ({1}) ", Book.Name, Book.Directory);
+            else
+                return;
+
+            if (Page != null)
+                Text = Text + String.Format("cтраница: {0}", Page.Number);
+            else
+                return;
+
+            if (Line != null)
+                Text = Text + String.Format(", строка {0}", Line.Number);
+            else
+                return;
+
+            if (Word != null)
+                Text = Text + String.Format(", слово {0}", Word);
+            else
+                return;
+
+            if (!string.IsNullOrEmpty(Word.Name))
+                Text = Text + String.Format(" ({0})", Word.Name);
+        }
+
+        public void LoadElement (Line line)
         {
             Line = line;
+            Word = null;
+
+            wordList.Items.Clear();
+            wordCountLink.Text = line.Words.Count().ToString();
 
             var lines = Page.Lines as List<Line>;
             if ((lines != null && !lines.Contains(Line)) || lines == null)
                 saveBookMenuItem.Enabled = true;
-            
-            Text = Book.Name + " (" + Book.Directory + ") [" + Page.Number + "] [" + Line.Number + "] - " + _programName;
 
             lineEditGroupBox.Enabled = true;
             wordTabPanel.Enabled = true;
             documentTabControl.SelectedIndex = 2;
 
-            if (Line.Words.Count > 0)
-                LoadWord(Line.Words[0]);
+            _vectorRedactor.ProcessActivation(line);
+
+            UpdateElementView(line);
         }
 
-        public void LoadWord(Word word)
+        private void UpdateElementView(Page page)
+        {
+            lineListBox.Items.Clear();
+            linesCountsLink.Text = page.Lines.Count().ToString();
+            pageNumberNumeric.Value = page.Number;
+
+            if (page.Lines.Count > 0)
+            {
+                foreach (var line in page.Lines)
+                {
+                    var s = line.Number.ToString();
+                    if (line.Words.Count == 0)
+                        s += " (Пустая)";
+                    else
+                        s += String.Format(" (Слов: {0})", line.Words.Count);
+
+                    lineListBox.Items.Add(s);
+                }
+            }
+            UpdateElementView(Book);
+        }
+
+        private void UpdateElementView(Book book)
+        {
+            pageListBox.Items.Clear();
+            pagesCountLink.Text = book.Pages.Count().ToString();
+            documentNameInputBox.Text = Book.Name;
+
+            if (book.Pages != null)
+                foreach (var page in book.Pages)
+                {
+                    var s = page.Number.ToString();
+                    if (page.Lines.Count == 0)
+                        s += " (Пустая)";
+                    else
+                        s += String.Format(" (Строк: {0} )", page.Lines.Count);
+
+                    s += String.Format(" [Файл: {0}]", page.FileName);
+                    pageListBox.Items.Add(s);
+                }
+            UpdateHeader();
+        }
+
+        private void UpdateElementView(Line line)
+        {
+            wordList.Items.Clear();
+            
+            if (line.Words.Count > 0)
+            {
+                foreach (var word in line.Words)
+                    wordList.Items.Add(String.Format("{0} ({1})", word.Number, word.Name));
+            }
+            UpdateElementView(Page);
+        }
+
+        public void LoadElement(Word word)
         {
             Word = word;
 
@@ -76,12 +169,13 @@ namespace Owl
             wordEditGroupBox.Enabled = true;
             documentTabControl.SelectedIndex = 3;
 
-            Text = Book.Name + " (" + Book.Directory + ") [" + Page.Number + "] [" + Line.Number + "] [" + Word.Number + "] - " + _programName;
+            _vectorRedactor.ProcessActivation(word);
+
+            UpdateHeader();
         }
   
-        public void LoadBook (Book book)
+        public void LoadElement (Book book)
         {
-            Text = book.Name + " (" + book.Directory + ") - " + _programName;
             Book = book;
             PageMenu.Enabled = true;
 
@@ -90,17 +184,15 @@ namespace Owl
             documentTabControl.SelectedIndex = 0;
 
             pageTabPanel.Enabled = true;
-            
-            documentNameInputBox.Text = Book.Name;
-            pagesCountLink.Text = Book.Pages.Count.ToString();
 
-            if (Book.Pages.Count > 0)
-                LoadPage(Book.Pages[0]);
+            if (book.Pages.Count>0)
+                LoadElement(book.Pages[0]);
+
+            UpdateElementView(book);
         }
 
-        public void LoadPage (Page page)
+        public void LoadElement (Page page)
         {
-            Text = Book.Name + " (" + Book.Directory + ") ["+page.Number+"] - " + _programName;
             Page = page;
             var image = new Bitmap(Book.Directory + "//" + page.FileName);
             interfaceBox.BackgroundImage = image;
@@ -116,14 +208,15 @@ namespace Owl
             if ((pages != null && !pages.Contains(Page)) || pages == null)
                 saveBookMenuItem.Enabled = true;
 
-            if (Page.Lines.Count>0)
-                LoadLine(Page.Lines[0]);
-
             _vectorRedactor = new VectorRedactorRepository(GetCanvas(), this, _vectorRedactorConfig);
             _vectorRedactor.LoadPage(Page);
-            //DocumentLayout = new Layout(Page, );
+
+            UpdateElementView(page);
         }
 
+        /// <summary>
+        /// Проверяет на наличие файла базы данных. Если такового нет - создает новый.
+        /// </summary>
         public static void CheckForDbFile()
         {
             if (File.Exists(Dbfile)) return;
@@ -133,11 +226,11 @@ namespace Owl
                         .UsingFile(Dbfile)
                 )
                 .Mappings(m =>
-                          m.FluentMappings.AddFromAssemblyOf<Book>())
+                          m.FluentMappings.AddFromAssemblyOf<BookRepository>())
                 .BuildConfiguration();
+
             new SchemaExport(configuration).Execute(false, true, false);
         }
-
 
         private void PageCreate(object sender, EventArgs e)
         {
@@ -297,6 +390,7 @@ namespace Owl
         private void InterfaceBoxPaint(object sender, PaintEventArgs e)
         {
             _vectorRedactor.Layout.Canvas = e.Graphics;
+            _vectorRedactor.Layout.Canvas.SmoothingMode = SmoothingMode.HighQuality;
             _vectorRedactor.Draw();
         }
 
@@ -304,6 +398,50 @@ namespace Owl
         {
             interfaceBox.Invalidate();
             interfaceBox.Update();
+        }
+
+        private void RedactorFormClosing(object sender, FormClosingEventArgs e)
+        {
+            Repository.Close();
+        }
+
+        private void Button1Click(object sender, EventArgs e)
+        {
+            (new PageCreate(this)).Show();
+        }
+
+        private void SavePageButtonClick(object sender, EventArgs e)
+        {
+            var number = pageNumberNumeric.Value;
+            if (Book.Pages.Any(page => page.Number == number))
+            {
+                MessageBox.Show(@"Страница с таким номером уже существует!", @"Ошибка", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
+            else
+            {
+                Page.Number = (int)number;
+                UpdateElementView(Book);
+            }
+        }
+        
+
+        private void CacelSavePageButtonClick(object sender, EventArgs e)
+        {
+            pageNumberNumeric.Value = Page.Number;
+            cacelSavePageButton.Enabled = false;
+        }
+
+        private void PageNumberNumericValueChanged(object sender, EventArgs e)
+        {
+            cacelSavePageButton.Enabled = true;
+        }
+
+        private void PageListBoxDoubleClick(object sender, EventArgs e)
+        {
+            var index = pageListBox.SelectedIndex;
+            if (index>=0 && index<=Book.Pages.Count)
+                LoadElement(Book.Pages[index]);
         }
     }
 }

@@ -76,19 +76,19 @@
             this.pageListBox = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
             this.pageEditGroupBox = new System.Windows.Forms.GroupBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.pageNumberNumeric = new System.Windows.Forms.NumericUpDown();
             this.linesCountsLink = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.savePageButton = new System.Windows.Forms.Button();
+            this.cacelSavePageButton = new System.Windows.Forms.Button();
             this.linePage = new System.Windows.Forms.TabPage();
             this.lineTabPanel = new System.Windows.Forms.Panel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lineListBox = new System.Windows.Forms.ListBox();
             this.lineEditGroupBox = new System.Windows.Forms.GroupBox();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.wordCountLink = new System.Windows.Forms.LinkLabel();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
@@ -120,7 +120,7 @@
             this.pageTabPanel.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.pageEditGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pageNumberNumeric)).BeginInit();
             this.linePage.SuspendLayout();
             this.lineTabPanel.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -528,6 +528,7 @@
             // documentTabCancellButton
             // 
             this.documentTabCancellButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.documentTabCancellButton.Enabled = false;
             this.documentTabCancellButton.Location = new System.Drawing.Point(5, 376);
             this.documentTabCancellButton.Name = "documentTabCancellButton";
             this.documentTabCancellButton.Size = new System.Drawing.Size(201, 23);
@@ -551,8 +552,8 @@
             this.pageTabPanel.Controls.Add(this.groupBox3);
             this.pageTabPanel.Controls.Add(this.button1);
             this.pageTabPanel.Controls.Add(this.pageEditGroupBox);
-            this.pageTabPanel.Controls.Add(this.button2);
-            this.pageTabPanel.Controls.Add(this.button3);
+            this.pageTabPanel.Controls.Add(this.savePageButton);
+            this.pageTabPanel.Controls.Add(this.cacelSavePageButton);
             this.pageTabPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pageTabPanel.Enabled = false;
             this.pageTabPanel.Location = new System.Drawing.Point(3, 3);
@@ -583,6 +584,7 @@
             this.pageListBox.Name = "pageListBox";
             this.pageListBox.Size = new System.Drawing.Size(191, 190);
             this.pageListBox.TabIndex = 1;
+            this.pageListBox.DoubleClick += new System.EventHandler(this.PageListBoxDoubleClick);
             // 
             // button1
             // 
@@ -593,10 +595,11 @@
             this.button1.TabIndex = 12;
             this.button1.Text = "Создать";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1Click);
             // 
             // pageEditGroupBox
             // 
-            this.pageEditGroupBox.Controls.Add(this.numericUpDown1);
+            this.pageEditGroupBox.Controls.Add(this.pageNumberNumeric);
             this.pageEditGroupBox.Controls.Add(this.linesCountsLink);
             this.pageEditGroupBox.Controls.Add(this.label1);
             this.pageEditGroupBox.Controls.Add(this.label3);
@@ -609,12 +612,13 @@
             this.pageEditGroupBox.TabStop = false;
             this.pageEditGroupBox.Text = "Выбранная страница";
             // 
-            // numericUpDown1
+            // pageNumberNumeric
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(42, 45);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown1.TabIndex = 13;
+            this.pageNumberNumeric.Location = new System.Drawing.Point(42, 45);
+            this.pageNumberNumeric.Name = "pageNumberNumeric";
+            this.pageNumberNumeric.Size = new System.Drawing.Size(120, 20);
+            this.pageNumberNumeric.TabIndex = 13;
+            this.pageNumberNumeric.ValueChanged += new System.EventHandler(this.PageNumberNumericValueChanged);
             // 
             // linesCountsLink
             // 
@@ -646,25 +650,28 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "Номер страницы:";
             // 
-            // button2
+            // savePageButton
             // 
-            this.button2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button2.Location = new System.Drawing.Point(5, 353);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(201, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Сохранить";
-            this.button2.UseVisualStyleBackColor = true;
+            this.savePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.savePageButton.Location = new System.Drawing.Point(5, 353);
+            this.savePageButton.Name = "savePageButton";
+            this.savePageButton.Size = new System.Drawing.Size(201, 23);
+            this.savePageButton.TabIndex = 3;
+            this.savePageButton.Text = "Сохранить";
+            this.savePageButton.UseVisualStyleBackColor = true;
+            this.savePageButton.Click += new System.EventHandler(this.SavePageButtonClick);
             // 
-            // button3
+            // cacelSavePageButton
             // 
-            this.button3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button3.Location = new System.Drawing.Point(5, 376);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(201, 23);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Отмена";
-            this.button3.UseVisualStyleBackColor = true;
+            this.cacelSavePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.cacelSavePageButton.Enabled = false;
+            this.cacelSavePageButton.Location = new System.Drawing.Point(5, 376);
+            this.cacelSavePageButton.Name = "cacelSavePageButton";
+            this.cacelSavePageButton.Size = new System.Drawing.Size(201, 23);
+            this.cacelSavePageButton.TabIndex = 2;
+            this.cacelSavePageButton.Text = "Отмена";
+            this.cacelSavePageButton.UseVisualStyleBackColor = true;
+            this.cacelSavePageButton.Click += new System.EventHandler(this.CacelSavePageButtonClick);
             // 
             // linePage
             // 
@@ -717,7 +724,7 @@
             // lineEditGroupBox
             // 
             this.lineEditGroupBox.Controls.Add(this.numericUpDown2);
-            this.lineEditGroupBox.Controls.Add(this.linkLabel1);
+            this.lineEditGroupBox.Controls.Add(this.wordCountLink);
             this.lineEditGroupBox.Controls.Add(this.label4);
             this.lineEditGroupBox.Controls.Add(this.label5);
             this.lineEditGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
@@ -736,17 +743,17 @@
             this.numericUpDown2.Size = new System.Drawing.Size(120, 20);
             this.numericUpDown2.TabIndex = 13;
             // 
-            // linkLabel1
+            // wordCountLink
             // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.linkLabel1.Location = new System.Drawing.Point(148, 75);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(14, 15);
-            this.linkLabel1.TabIndex = 12;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "0";
-            this.linkLabel1.Click += new System.EventHandler(this.SelectNewTab);
+            this.wordCountLink.AutoSize = true;
+            this.wordCountLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.wordCountLink.Location = new System.Drawing.Point(148, 75);
+            this.wordCountLink.Name = "wordCountLink";
+            this.wordCountLink.Size = new System.Drawing.Size(14, 15);
+            this.wordCountLink.TabIndex = 12;
+            this.wordCountLink.TabStop = true;
+            this.wordCountLink.Text = "0";
+            this.wordCountLink.Click += new System.EventHandler(this.SelectNewTab);
             // 
             // label4
             // 
@@ -914,6 +921,7 @@
             this.MainMenuStrip = this.MainMenu;
             this.Name = "Redactor";
             this.Text = "Redactor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RedactorFormClosing);
             this.Load += new System.EventHandler(this.RedactorLoad);
             this.Tools.ResumeLayout(false);
             this.Tools.PerformLayout();
@@ -937,7 +945,7 @@
             this.groupBox3.ResumeLayout(false);
             this.pageEditGroupBox.ResumeLayout(false);
             this.pageEditGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pageNumberNumeric)).EndInit();
             this.linePage.ResumeLayout(false);
             this.lineTabPanel.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -1001,12 +1009,12 @@
         private System.Windows.Forms.Panel pageTabPanel;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox pageEditGroupBox;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown pageNumberNumeric;
         private System.Windows.Forms.LinkLabel linesCountsLink;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button savePageButton;
+        private System.Windows.Forms.Button cacelSavePageButton;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ListBox pageListBox;
         private System.Windows.Forms.Panel lineTabPanel;
@@ -1014,7 +1022,7 @@
         private System.Windows.Forms.ListBox lineListBox;
         private System.Windows.Forms.GroupBox lineEditGroupBox;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.LinkLabel wordCountLink;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button button5;
