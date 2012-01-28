@@ -37,6 +37,8 @@ namespace Owl.Domain
             _original = image;
             _ratio = ratio;
             _bit = Functions.BinarizeImage(_original);
+            _height = image.Height;
+            _width = image.Width;
         }
 
         public AnalyzablePage(Page page)
@@ -57,6 +59,13 @@ namespace Owl.Domain
             _width = _original.Width;
         }
 
+
+        public AnalyzablePage(int width, int height)
+        {
+            _original = new Bitmap(width,height);
+            _width = width;
+            _height = height;
+        }
 /*
         /// <summary>
         /// Передает изображение, эквивалентное битовому представлению страницы 
@@ -120,7 +129,7 @@ namespace Owl.Domain
         /// <summary>
         /// Возвращает линии.
         /// </summary>
-        private IList<AnalyzableLine> Lines
+        public IList<AnalyzableLine> Lines
         {
             get { return _lines; }
             set { _lines = value; }
@@ -144,24 +153,42 @@ namespace Owl.Domain
 
         public int HeightRange()
         {
-            List<int> heights = _lines.Select(line => line.Height).AsParallel().ToList();
-            if (heights.Count == 0)
-                return Height;
-            return heights.Max() - heights.Min();
+            try
+            {
+                List<int> heights = _lines.Select(line => line.Height).AsParallel().ToList();
+                if (heights.Count == 0)
+                    return Height;
+                return heights.Max() - heights.Min();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cant heights generate ranges");
+            }
+            
         }
 
         public int DistanceRange()
         {
-            var distances = new List<int>();
-            int lastLineEnd = Lines[0].End;
-            for (int i = 1; i < Lines.Count; i++)
+            try
             {
-                distances.Add(Lines[i].End - lastLineEnd);
-                lastLineEnd = Lines[i].End;
+                if (Lines.Count <= 2) return Height;
+
+                var distances = new List<int>();
+                int lastLineEnd = Lines[0].End;
+                for (int i = 1; i < Lines.Count; i++)
+                {
+                    distances.Add(Lines[i].End - lastLineEnd);
+                    lastLineEnd = Lines[i].End;
+                }
+                if (distances.Count == 0)
+                    return Height;
+                return distances.Max() - distances.Min();
             }
-            if (distances.Count == 0)
-                return Height;
-            return distances.Max() - distances.Min();
+            catch (Exception e)
+            {
+                throw new Exception("Cant generate Distance ranges");
+            }
+            
         }
 
         public double DensityRange()
@@ -275,10 +302,10 @@ namespace Owl.Domain
         public void SegmentatePage()
         {
             AnalyzablePage page = this;
-            var factorConfig = new List<GrayCodeConfig> {new GrayCodeConfig(2, 20)};
-            var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.05, 20, 0.1, factorConfig, 20, 8);
+            var factorConfig = new List<GrayCodeConfig> { new GrayCodeConfig(0, 0.5), new GrayCodeConfig(0, page.Height/5) };
+            var config = new GeneticAlgorithm.Domain.GeneticAlgorithm.Config(0.02, 20, 0.1, factorConfig, 50, 8);
             page.Lines = new List<AnalyzableLine>();
-            page = new PageSegmentator(config, page).SegmentedPage();
+            page = new SimpleSegmentator(config, page).GetSegmentation();
             Lines = page.Lines;
         }
     }
