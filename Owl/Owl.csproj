@@ -121,19 +121,20 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\SharedLibs\Fluent\System.Data.SQLite.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorythms\GeneticAlgorithm.cs" />
+    <Compile Include="Dictionary.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dictionary.Designer.cs">
+      <DependentUpon>Dictionary.cs</DependentUpon>
+    </Compile>
     <Compile Include="Repositories\Hystogram.cs" />
     <Compile Include="BookCreate.cs">
       <SubType>Form</SubType>
@@ -191,11 +192,20 @@
       <DependentUpon>Redactor.cs</DependentUpon>
     </Compile>
     <Compile Include="Repositories\VectorRedactorRepository.cs" />
+    <Compile Include="TextGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextGenerator.Designer.cs">
+      <DependentUpon>TextGenerator.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="BookCreate.resx">
       <DependentUpon>BookCreate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="BookOpen.resx">
       <DependentUpon>BookOpen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dictionary.resx">
+      <DependentUpon>Dictionary.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OwlForm.resx">
       <DependentUpon>OwlForm.cs</DependentUpon>
@@ -218,6 +228,9 @@
     </Compile>
     <EmbeddedResource Include="Redactor.resx">
       <DependentUpon>Redactor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextGenerator.resx">
+      <DependentUpon>TextGenerator.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />

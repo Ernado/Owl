@@ -116,6 +116,7 @@
             this.MinimizeBox = false;
             this.Name = "BookOpen";
             this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Открыть книгу";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.BookOpenFormClosed);
             this.Shown += new System.EventHandler(this.BookOpenShown);

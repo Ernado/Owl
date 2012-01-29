@@ -78,9 +78,15 @@ namespace Owl
 
         private void DeleteButtonClick(object sender, EventArgs e)
         {
-            if (_selectedPage!=null)
+            if (_selectedPage == null) return;
+
+            if (MessageBox.Show(String.Format("Вы уверены, что хотите удалить страницу №{0} без возможности восстановления?",
+                                              _selectedPage.Number),
+                                @"Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                _redactor.Book.DeletePage(_selectedPage);
+                _redactor.DeleteElement(_selectedPage);
+                PageList.Items.Clear();
+                BeginInvoke(new InvokeDelegate(LoadPages));
             }
         }
 

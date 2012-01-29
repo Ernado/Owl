@@ -89,8 +89,10 @@ namespace Owl
                 Enabled = false;
                 Cursor = Cursors.WaitCursor;
                 _page.Number = (int)pageNumberInput.Value;
-                var filename = _page.Number.ToString() + "_" + _page.FileName;
-                while (File.Exists(filename))
+
+                var filename = String.Format("{0}_{1}", _page.Number, _page.FileName);
+
+                while (File.Exists(String.Format("{0}//{1}",_redactor.Book.Directory,filename)))
                 {
                     filename = random.Next(10).ToString() + filename;
                 }

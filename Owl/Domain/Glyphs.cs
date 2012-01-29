@@ -44,19 +44,28 @@ namespace Owl.Domain
         public Glyph MainGlyph;
         public VectorRedactorRepository ParentVectorRedactor;
         public Redactor Redactor;
-        protected Glyph Parent { get; set; }
+        public Glyph Parent { get; set; }
         public List<Glyph> Childs { get; protected set; }
 
         public abstract void ProcessMove(Point location);
 
         protected abstract bool Intersects(Point point);
 
+        public void Remove()
+        {
+            if (Figure!=null)
+                ParentVectorRedactor.Layout.RemoveFigure(Figure);
+
+            if (Parent != null)
+                Parent.Childs.Remove(this);
+        }
+
         protected void Invalidate()
         {
-            if (Redactor == null)
+            if (ParentVectorRedactor == null)
                 throw new ArgumentNullException();
 
-            Redactor.InvalidateInterfaceBox();
+            ParentVectorRedactor.Invalidate();
         }
 
         public void InsertChild(Glyph glyph)
@@ -138,6 +147,8 @@ namespace Owl.Domain
                     child.Draw();
                 }
         }
+
+        public abstract void ProcessSelection();
     }
 
     internal abstract class SolidGlyph : Glyph
@@ -167,9 +178,9 @@ namespace Owl.Domain
             (Figure as SolidFigure).Move(dx, dy);
         }
 
-        public virtual void ProcessSelection()
+        public override void ProcessSelection()
         {
-            throw new NotImplementedException();
+            ParentVectorRedactor.Invalidate();
         }
 
         public override void ProcessMove(Point offset)
@@ -199,17 +210,16 @@ namespace Owl.Domain
             if (Word.Polygons != null && Word.Polygons.Count > 0)
                 foreach (Polygon polygon in Word.Polygons)
                     path.AddPath(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints()), false);
+
             Figures = new List<Figure>();
 
             if (Word.Polygons != null && Word.Polygons.Count > 0)
             {
                 foreach (Polygon polygon in Word.Polygons)
                     Figures.Add(new SolidFigure(Functions.GeneratePathFromPoints(polygon.ConvertToDrawingPoints())));
-
-                foreach (Figure figure in Figures)
-                    Figure.Path.AddPath(figure.Path, false);
             }
-            
+
+            Figure.Path.CloseAllFigures(); ;
             Childs = new List<Glyph>();
         }
 
@@ -237,6 +247,8 @@ namespace Owl.Domain
             if (Word == null)
                 throw new NullReferenceException("Word can't be null");
 
+            base.ProcessSelection();
+            Parent.ProcessSelection();
             Redactor.LoadElement(Word);
         }
 
@@ -247,7 +259,7 @@ namespace Owl.Domain
 
         protected override void UpdateData()
         {
-            Word.Polygons = new List<Polygon>();
+            Word.Polygons.Clear();
             var solidFigure = Figure as SolidFigure;
             if (solidFigure == null)
                 throw new ArgumentNullException();
@@ -296,8 +308,13 @@ namespace Owl.Domain
 
         public void InsertChild(WordGlyph glyph)
         {
+            glyph.Parent = this;
+            glyph.MainGlyph = MainGlyph;
+            glyph.Redactor = Redactor;
+            glyph.ParentVectorRedactor = ParentVectorRedactor;
             Childs.Add(glyph);
-            Line.AddWord(glyph.Word);
+            if (!Line.Words.Contains(glyph.Word))
+                Line.AddWord(glyph.Word);
             ParentVectorRedactor.Layout.AddFigure(glyph.Figure);
         }
 
@@ -306,7 +323,10 @@ namespace Owl.Domain
             if (Line == null)
                 throw new NullReferenceException("Line can't be null");
 
-            Redactor.LoadElement(Line);
+            base.ProcessSelection();
+
+            if (Redactor.Line != Line)
+                Redactor.LoadElement(Line);
         }
 
         protected override void UpdateData()
@@ -338,7 +358,8 @@ namespace Owl.Domain
 
         public LineGlyph InsertNewLineGlyph(Line line)
         {
-            var lineGlyph = new LineGlyph(line) {Config = ParentVectorRedactor.LineConfig};
+            var lineGlyph = new LineGlyph(line)
+                                {Config = ParentVectorRedactor.LineConfig, Parent = this, MainGlyph = MainGlyph};
             InsertChild(lineGlyph);
             return lineGlyph;
         }
@@ -351,6 +372,11 @@ namespace Owl.Domain
         public override void Move(int dx, int dy)
         {
             throw new Exception("Can't move canvas");
+        }
+
+        public override void ProcessSelection()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -375,6 +401,11 @@ namespace Owl.Domain
         public override void Draw()
         {
             Figure.Draw(Config.Brush, Config.Pen);
+        }
+
+        public override void ProcessSelection()
+        {
+            throw new NotImplementedException();
         }
 
         public override void ProcessMove(Point offset)
@@ -410,6 +441,12 @@ namespace Owl.Domain
 
             var line = new Line();
             line.Polygon.LoadPointList(figure.Points);
+
+            var number = 1;
+            if (Redactor.Page.Lines.Count > 0)
+                number = (from fromDbline in Redactor.Page.Lines orderby fromDbline.Number descending select fromDbline.Number).ToList()[0] + 1;
+            line.Number = number;
+
             Redactor.Page.AddLine(line);
 
             var glyph = new LineGlyph(line) {Figure = new SolidFigure(path), Config = ParentVectorRedactor.LineConfig};
@@ -439,11 +476,22 @@ namespace Owl.Domain
             polygon.LoadPointList(figure.Points);
             word.AddPolygon(polygon);
 
+
+            var number = 1;
+            if (Redactor.Line.Words.Count > 0)
+                number = (from dbWord in Redactor.Line.Words orderby dbWord.Number descending select dbWord.Number).ToList()[0] + 1;
+            word.Number = number;
+
             if (ParentVectorRedactor.Mode == RedactorModes.AddPolygon)
                 Redactor.Line.AddWord(word);
 
             var wordGlyph = new WordGlyph(word)
                                 {Figure = new SolidFigure(path), Config = ParentVectorRedactor.WordConfig};
+
+            if (!Redactor.Line.Words.Contains(word))
+            {
+                Redactor.Line.AddWord(word);
+            }
 
             Parent.InsertChild(wordGlyph);
 
@@ -513,12 +561,16 @@ namespace Owl.Domain
 
     public interface IVectorRedactorInterface
     {
-        void ProcessMove(MouseEventArgs e);
+        void ProcessMouseMove(MouseEventArgs e);
         void ProcessClick(MouseEventArgs e);
         void Draw();
         bool ProcessModeChangeToMove();
         bool ProcessModeChangeToCreate();
         bool ProcessModeChangeToAdd();
+        void ProcessActivation(Line line);
+        void ProcessActivation(Word line);
+        void ProcessRemove(Word line);
+        void ProcessRemove(Line line);
         void ProcessMouseDown(MouseEventArgs e);
         void LoadPage(Page page);
     }

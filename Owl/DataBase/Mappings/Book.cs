@@ -16,7 +16,7 @@ namespace Owl.DataBase.Mappings
             Map(x => x.Directory);
             Map(x => x.Name);
             HasMany(x => x.Pages)
-                .Cascade.All()
+                .Cascade.AllDeleteOrphan()
                 .Inverse()
                 .LazyLoad();
         }
@@ -31,7 +31,7 @@ namespace Owl.DataBase.Mappings
              Map(x => x.FileName);
              References(x => x.Book);
              HasMany(x => x.Lines)
-                 .Cascade.All()
+                 .Cascade.AllDeleteOrphan()
                  .Inverse();
          }
     }
@@ -47,7 +47,7 @@ namespace Owl.DataBase.Mappings
                 .Inverse();
             References(x => x.Page);
             HasMany(x => x.Polygons)
-                .Cascade.All();
+                .Cascade.AllDeleteOrphan();
 
         }
     }
@@ -60,7 +60,7 @@ namespace Owl.DataBase.Mappings
             Map(x => x.Name);
             Map(x => x.Number);
             HasMany(x => x.Polygons)
-                .Cascade.All();
+                .Cascade.AllDeleteOrphan();
             References(x => x.Line);
         }
     }

@@ -31,8 +31,20 @@ namespace Owl.Repositories
             public Brush WordBrush { get; set; }
             public Pen WordPen { get; set; }
         }
+        
+        private void Focus (Glyph glyph)
+        {
+            ActiveGlyph = glyph;
+            Invalidate();
+        }
 
+        public void Invalidate ()
+        {
+            if (_redactor == null)
+                throw new ArgumentNullException();
 
+            _redactor.InvalidateInterfaceBox();
+        }
 
         public VectorRedactorRepository(Graphics canvas, Redactor redactor, VectorRedactorConfig config)
         {
@@ -73,31 +85,6 @@ namespace Owl.Repositories
             }
         }
 
-        public void ProcessMouseUp()
-        {
-            if (RedactorState == RedactorStates.Dragging)
-            {
-                RedactorState = RedactorStates.Default;
-                return;
-            }
-        }
-
-        /// <summary>
-        /// Обрабатывает нажание левой кнопки мыши
-        /// </summary>
-        /// <param name="e"></param>
-        public void ProcessMouseDown(MouseEventArgs e)
-        {
-            var location = e.Location;
-
-            if (RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord)
-                return;
-
-            if (e.Button == MouseButtons.Left && Mode == RedactorModes.Move &&
-                RedactorState == RedactorStates.Default)
-                TryStartDraggingGlyphIn(location);
-        }
-
         /// <summary>
         /// Начинает создание нового глифа в зависимости от активного.
         /// </summary>
@@ -134,6 +121,44 @@ namespace Owl.Repositories
             RedactorState = RedactorStates.Dragging;
         }
 
+        public void LoadPage(Page page)
+        {
+            MainGlyph = new CanvasGlyph(WordConfig) { Redactor = _redactor, ParentVectorRedactor = this };
+            foreach (var line in page.Lines)
+            {
+                var lineGlyph = MainGlyph.InsertNewLineGlyph(line);
+                foreach (var word in line.Words)
+                    lineGlyph.InsertNewWordGlyph(word);
+            }
+        }
+
+        #region Processing methods
+
+        public void ProcessMouseUp()
+        {
+            if (RedactorState == RedactorStates.Dragging)
+            {
+                RedactorState = RedactorStates.Default;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Обрабатывает нажание левой кнопки мыши
+        /// </summary>
+        /// <param name="e"></param>
+        public void ProcessMouseDown(MouseEventArgs e)
+        {
+            var location = e.Location;
+
+            if (RedactorState == RedactorStates.CreatingLine || RedactorState == RedactorStates.CreatingWord)
+                return;
+            var newActiveGlyph = FindGlyphIn(location);
+
+            if (e.Button == MouseButtons.Left && Mode == RedactorModes.Move &&
+                RedactorState == RedactorStates.Default && newActiveGlyph == ActiveGlyph)
+                TryStartDraggingGlyphIn(location);
+        }
 
         public bool ProcessModeChangeToMove()
         {
@@ -192,9 +217,9 @@ namespace Owl.Repositories
 
                 else
                 {
-                    ActiveGlyph = newActiveGlyph;
-                    if (ActiveGlyph is SolidGlyph)
-                        (ActiveGlyph as SolidGlyph).ProcessSelection();
+                    Focus(newActiveGlyph);
+                    if (ActiveGlyph is LineGlyph || ActiveGlyph is WordGlyph)
+                        ActiveGlyph.ProcessSelection();
                     _redactor.Invalidate();
                 }
             }
@@ -204,16 +229,19 @@ namespace Owl.Repositories
 
         }
 
-        public void ProcessMove(MouseEventArgs e)
+        public void ProcessMouseMove(MouseEventArgs e)
         {
             var cursor = Cursors.Default;
             var location = e.Location;
-
-            if (RedactorState == RedactorStates.Default && !(FindGlyphIn(location) is PathGlyph) && !(FindGlyphIn(location) is CanvasGlyph))
+            var underCursorGlyph = FindGlyphIn(location);
+            if (RedactorState == RedactorStates.Default && underCursorGlyph != ActiveGlyph)
                 cursor = Cursors.Hand;
 
-            if (ActiveGlyph is PathGlyph)
+            if (ActiveGlyph is PathGlyph || (Mode != RedactorModes.Move && underCursorGlyph == ActiveGlyph))
                 cursor = Cursors.Cross;
+
+            if (RedactorState == RedactorStates.Dragging)
+                cursor = Cursors.NoMove2D;
 
             ActiveGlyph.ProcessMove(new Point(location.X - LastCursorLocation.X, location.Y - LastCursorLocation.Y));
 
@@ -252,18 +280,7 @@ namespace Owl.Repositories
             //_redactor.Invalidate();
         }
 
-        public void LoadPage(Page page)
-        {
-            MainGlyph = new CanvasGlyph(WordConfig) { Redactor = _redactor, ParentVectorRedactor = this };
-            foreach (var line in page.Lines)
-            {
-                var lineGlyph = MainGlyph.InsertNewLineGlyph(line);
-                foreach (var word in line.Words)
-                    lineGlyph.InsertNewWordGlyph(word);
-            }
-        }
-
-        public void ProcessActivation (Line line)
+        public void ProcessActivation(Line line)
         {
             var activeGlyph = ActiveGlyph as LineGlyph;
             if (activeGlyph != null && activeGlyph.Line == line)
@@ -274,7 +291,7 @@ namespace Owl.Repositories
                 if (lineGlyph == null)
                     throw new NullReferenceException();
 
-                if (lineGlyph.Line==line)
+                if (lineGlyph.Line == line)
                     lineGlyph.ProcessSelection();
             }
         }
@@ -302,5 +319,56 @@ namespace Owl.Repositories
 
             }
         }
+
+        public void ProcessRemove(Word word)
+        {
+            foreach (var lineGlyph in MainGlyph.Childs.Select(child => (child as LineGlyph)))
+            {
+                foreach (var wordGlyph in lineGlyph.Childs.Select(child => (child as WordGlyph)))
+                {
+                    if (wordGlyph == null)
+                        throw new NullReferenceException();
+
+                    if (wordGlyph.Word != word) continue;
+
+                    wordGlyph.Remove();
+                    break;
+                }
+            }
+
+            var activeGlyph = ActiveGlyph as WordGlyph;
+
+            if (activeGlyph != null && activeGlyph.Word == word)
+                Focus(ActiveGlyph.Parent.Childs.Count > 1 ? ActiveGlyph.Parent.Childs[0] : ActiveGlyph.Parent);
+
+            Invalidate();
+        }
+
+        public void ProcessRemove(Line line)
+        {
+            foreach (var lineGlyph in MainGlyph.Childs.Select(child => (child as LineGlyph)))
+            {
+                if (lineGlyph == null)
+                    throw new NullReferenceException();
+
+                if (lineGlyph.Line != line) continue;
+
+                lineGlyph.Remove();
+                break;
+            }
+
+            var activeGlyph = ActiveGlyph as LineGlyph;
+
+            if (activeGlyph != null && activeGlyph.Line == line)
+                Focus(MainGlyph.Childs.Count > 1 ? MainGlyph.Childs[0] : MainGlyph);
+
+            Invalidate();
+        }
+
+        public void ProcessFocusReset()
+        {
+            ActiveGlyph = MainGlyph;
+        } 
+        #endregion
     }
 }

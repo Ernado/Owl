@@ -63,7 +63,7 @@ namespace Owl.DataBase.Domain
             page.Book = this; //указываем документ как родительский для страницы
             Pages.Add(page); //добавляем страницу в список страниц документа
         }
-        public virtual void DeletePage(Page page)
+        public virtual void RemovePage(Page page)
         {
             if (Pages.Contains(page))
             {
@@ -108,6 +108,15 @@ namespace Owl.DataBase.Domain
             Points.Add(point);
         }
 
+        public virtual void Clear ()
+        {
+            foreach (var point in Points)
+            {
+                point.Polygon = null;
+            }
+            Points.Clear();
+        }
+
         public virtual List<System.Drawing.Point> ConvertToDrawingPoints()
         {
             return Points.Select(point => new System.Drawing.Point
@@ -122,7 +131,7 @@ namespace Owl.DataBase.Domain
         /// <param name="points">Точки для добавления к полигону.</param>
         public virtual void LoadPointList (IEnumerable<System.Drawing.Point> points)
         {
-            _points.Clear();
+            Clear();
             foreach (var newpoint in points.Select(point => new Point {X = point.X, Y = point.Y}))
             {
                 AddPoint(newpoint);
@@ -185,7 +194,7 @@ namespace Owl.DataBase.Domain
         /// Удаляет слово в строке
         /// </summary>
         /// <param name="word">Слово</param>
-        public virtual void DeleteWord(Word word)
+        public virtual void RemoveWord(Word word)
         {
             if (Words.Contains(word))
             {
@@ -226,6 +235,11 @@ namespace Owl.DataBase.Domain
             {
                 Polygons.Remove(polygon);
             }
+        }
+
+        public virtual void Clear ()
+        {
+            Polygons.Clear(); 
         }
     }
 

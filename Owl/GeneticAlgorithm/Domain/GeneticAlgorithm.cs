@@ -319,8 +319,8 @@ namespace Owl.GeneticAlgorithm.Domain
         /// </summary>
         protected void Solve()
         {
-            int iterations = 0;
-            int globalMaximumIterations = 0;
+            var iterations = 0;
+            var globalMaximumIterations = 0;
             double maxFitness = 0;
             double globalMaximum = 0.0;
             _population = GenerateInitialPopulation();
@@ -329,8 +329,7 @@ namespace Owl.GeneticAlgorithm.Domain
 
             try
             {
-                while (((globalMaximumIterations < GeneticConfiguration.MaximumIterations * (1 - globalMaximum)) || !(Math.Abs(maxFitness - globalMaximum) < 0.01)) &&
-                   (iterations < GeneticConfiguration.MaximumIterations))
+                while (true)
                 {
                     if (maxFitness > globalMaximum)
                     {
@@ -346,6 +345,14 @@ namespace Owl.GeneticAlgorithm.Domain
                     BestOrganism =
                         (from organism in _population orderby organism.Fitness descending select organism).ToList()[0];
                     maxFitness = BestOrganism.Fitness;
+
+                    var solved = ((globalMaximumIterations < GeneticConfiguration.MaximumIterations*(1 - globalMaximum)) ||
+                                  !(Math.Abs(maxFitness - globalMaximum) < 0.01)) &&
+                                 (iterations < GeneticConfiguration.MaximumIterations);
+
+                    if (solved)
+                        break;
+
                     _population = NewPopulation();
                     iterations++;
                 }

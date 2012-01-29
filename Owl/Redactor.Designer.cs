@@ -40,19 +40,13 @@
             this.OpenDocumentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateBookMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveBookMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openDictionaryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.закрытьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitButton = new System.Windows.Forms.ToolStripMenuItem();
             this.PageMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenPageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreatePageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadImageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeletePageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.scaleMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.maxScaleMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mediumScaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lowScaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.smallerScaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.smallestScaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.interfaceScrollContainer = new System.Windows.Forms.Panel();
@@ -74,36 +68,40 @@
             this.pageTabPanel = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.pageListBox = new System.Windows.Forms.ListBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.cacelSavePageButton = new System.Windows.Forms.Button();
+            this.createPageButton = new System.Windows.Forms.Button();
+            this.savePageButton = new System.Windows.Forms.Button();
+            this.deletePageButton = new System.Windows.Forms.Button();
             this.pageEditGroupBox = new System.Windows.Forms.GroupBox();
             this.pageNumberNumeric = new System.Windows.Forms.NumericUpDown();
             this.linesCountsLink = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.savePageButton = new System.Windows.Forms.Button();
-            this.cacelSavePageButton = new System.Windows.Forms.Button();
             this.linePage = new System.Windows.Forms.TabPage();
             this.lineTabPanel = new System.Windows.Forms.Panel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lineListBox = new System.Windows.Forms.ListBox();
+            this.cancellLineButton = new System.Windows.Forms.Button();
+            this.saveLineButton = new System.Windows.Forms.Button();
             this.lineEditGroupBox = new System.Windows.Forms.GroupBox();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.lineNumberNumeric = new System.Windows.Forms.NumericUpDown();
             this.wordCountLink = new System.Windows.Forms.LinkLabel();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
+            this.deleteLineButton = new System.Windows.Forms.Button();
             this.wordPage = new System.Windows.Forms.TabPage();
             this.wordTabPanel = new System.Windows.Forms.Panel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.wordList = new System.Windows.Forms.ListBox();
+            this.cancellWordButton = new System.Windows.Forms.Button();
+            this.saveWordButton = new System.Windows.Forms.Button();
             this.wordEditGroupBox = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.wordNameBox = new System.Windows.Forms.TextBox();
+            this.wordNumberNumeric = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button9 = new System.Windows.Forms.Button();
+            this.deleteWordButton = new System.Windows.Forms.Button();
+            this.pageTextGenerator = new System.Windows.Forms.ToolStripMenuItem();
             this.Tools.SuspendLayout();
             this.MainMenu.SuspendLayout();
             this.mainPanel.SuspendLayout();
@@ -125,12 +123,12 @@
             this.lineTabPanel.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.lineEditGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lineNumberNumeric)).BeginInit();
             this.wordPage.SuspendLayout();
             this.wordTabPanel.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.wordEditGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wordNumberNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // Status
@@ -198,8 +196,7 @@
             // 
             this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.docuentMenuItem,
-            this.PageMenu,
-            this.scaleMenuItem});
+            this.PageMenu});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
             this.MainMenu.Size = new System.Drawing.Size(919, 24);
@@ -212,6 +209,7 @@
             this.OpenDocumentMenuItem,
             this.CreateBookMenuItem,
             this.saveBookMenuItem,
+            this.openDictionaryMenuItem,
             this.закрытьToolStripMenuItem,
             this.exitButton});
             this.docuentMenuItem.Name = "docuentMenuItem";
@@ -222,7 +220,7 @@
             // 
             this.OpenDocumentMenuItem.Name = "OpenDocumentMenuItem";
             this.OpenDocumentMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.OpenDocumentMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.OpenDocumentMenuItem.Size = new System.Drawing.Size(199, 22);
             this.OpenDocumentMenuItem.Text = "Открыть";
             this.OpenDocumentMenuItem.Click += new System.EventHandler(this.OpenDocumentMenuItemClick);
             // 
@@ -230,7 +228,7 @@
             // 
             this.CreateBookMenuItem.Name = "CreateBookMenuItem";
             this.CreateBookMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.CreateBookMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.CreateBookMenuItem.Size = new System.Drawing.Size(199, 22);
             this.CreateBookMenuItem.Text = "Создать";
             this.CreateBookMenuItem.Click += new System.EventHandler(this.CreateBookMenuItemClick);
             // 
@@ -239,21 +237,28 @@
             this.saveBookMenuItem.Enabled = false;
             this.saveBookMenuItem.Name = "saveBookMenuItem";
             this.saveBookMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveBookMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.saveBookMenuItem.Text = "Сохранить";
+            this.saveBookMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.saveBookMenuItem.Text = "Сохранить в БД";
             this.saveBookMenuItem.Click += new System.EventHandler(this.SaveBookMenuItemClick);
+            // 
+            // openDictionaryMenuItem
+            // 
+            this.openDictionaryMenuItem.Name = "openDictionaryMenuItem";
+            this.openDictionaryMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.openDictionaryMenuItem.Text = "Словарь";
+            this.openDictionaryMenuItem.Click += new System.EventHandler(this.OpenDictionaryMenuItemClick);
             // 
             // закрытьToolStripMenuItem
             // 
             this.закрытьToolStripMenuItem.Name = "закрытьToolStripMenuItem";
-            this.закрытьToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.закрытьToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.закрытьToolStripMenuItem.Text = "Закрыть";
             // 
             // exitButton
             // 
             this.exitButton.Name = "exitButton";
             this.exitButton.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.exitButton.Size = new System.Drawing.Size(172, 22);
+            this.exitButton.Size = new System.Drawing.Size(199, 22);
             this.exitButton.Text = "Выйти";
             this.exitButton.Click += new System.EventHandler(this.ExitButtonClick);
             // 
@@ -262,7 +267,7 @@
             this.PageMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.OpenPageMenuItem,
             this.CreatePageMenuItem,
-            this.loadImageMenuItem,
+            this.pageTextGenerator,
             this.DeletePageMenuItem});
             this.PageMenu.Enabled = false;
             this.PageMenu.Name = "PageMenu";
@@ -272,7 +277,7 @@
             // OpenPageMenuItem
             // 
             this.OpenPageMenuItem.Name = "OpenPageMenuItem";
-            this.OpenPageMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.OpenPageMenuItem.Size = new System.Drawing.Size(161, 22);
             this.OpenPageMenuItem.Text = "Открыть";
             this.OpenPageMenuItem.Click += new System.EventHandler(this.OpenPageMenuItemClick);
             // 
@@ -280,63 +285,15 @@
             // 
             this.CreatePageMenuItem.Name = "CreatePageMenuItem";
             this.CreatePageMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.CreatePageMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.CreatePageMenuItem.Size = new System.Drawing.Size(161, 22);
             this.CreatePageMenuItem.Text = "Создать";
             this.CreatePageMenuItem.Click += new System.EventHandler(this.PageCreate);
-            // 
-            // loadImageMenuItem
-            // 
-            this.loadImageMenuItem.Name = "loadImageMenuItem";
-            this.loadImageMenuItem.Size = new System.Drawing.Size(205, 22);
-            this.loadImageMenuItem.Text = "Загрузить изображение";
             // 
             // DeletePageMenuItem
             // 
             this.DeletePageMenuItem.Name = "DeletePageMenuItem";
-            this.DeletePageMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.DeletePageMenuItem.Size = new System.Drawing.Size(161, 22);
             this.DeletePageMenuItem.Text = "Удалить";
-            // 
-            // scaleMenuItem
-            // 
-            this.scaleMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.maxScaleMenuItem,
-            this.mediumScaleToolStripMenuItem,
-            this.lowScaleToolStripMenuItem,
-            this.smallerScaleToolStripMenuItem,
-            this.smallestScaleToolStripMenuItem});
-            this.scaleMenuItem.Name = "scaleMenuItem";
-            this.scaleMenuItem.Size = new System.Drawing.Size(71, 20);
-            this.scaleMenuItem.Text = "Масштаб";
-            // 
-            // maxScaleMenuItem
-            // 
-            this.maxScaleMenuItem.Name = "maxScaleMenuItem";
-            this.maxScaleMenuItem.Size = new System.Drawing.Size(102, 22);
-            this.maxScaleMenuItem.Text = "100%";
-            // 
-            // mediumScaleToolStripMenuItem
-            // 
-            this.mediumScaleToolStripMenuItem.Name = "mediumScaleToolStripMenuItem";
-            this.mediumScaleToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-            this.mediumScaleToolStripMenuItem.Text = "75%";
-            // 
-            // lowScaleToolStripMenuItem
-            // 
-            this.lowScaleToolStripMenuItem.Name = "lowScaleToolStripMenuItem";
-            this.lowScaleToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-            this.lowScaleToolStripMenuItem.Text = "50%";
-            // 
-            // smallerScaleToolStripMenuItem
-            // 
-            this.smallerScaleToolStripMenuItem.Name = "smallerScaleToolStripMenuItem";
-            this.smallerScaleToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-            this.smallerScaleToolStripMenuItem.Text = "25%";
-            // 
-            // smallestScaleToolStripMenuItem
-            // 
-            this.smallestScaleToolStripMenuItem.Name = "smallestScaleToolStripMenuItem";
-            this.smallestScaleToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-            this.smallestScaleToolStripMenuItem.Text = "10%";
             // 
             // mainPanel
             // 
@@ -461,6 +418,7 @@
             this.documentTabCreateButton.TabIndex = 12;
             this.documentTabCreateButton.Text = "Создать";
             this.documentTabCreateButton.UseVisualStyleBackColor = true;
+            this.documentTabCreateButton.Click += new System.EventHandler(this.DocumentTabCreateButtonClick);
             // 
             // groupBox1
             // 
@@ -484,6 +442,7 @@
             this.documentNameInputBox.Size = new System.Drawing.Size(108, 20);
             this.documentNameInputBox.TabIndex = 12;
             this.documentNameInputBox.Text = "Имя документа";
+            this.documentNameInputBox.TextChanged += new System.EventHandler(this.DocumentNameInputBoxTextChanged);
             // 
             // pagesCountLink
             // 
@@ -518,12 +477,14 @@
             // documentTabSaveButton
             // 
             this.documentTabSaveButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.documentTabSaveButton.Enabled = false;
             this.documentTabSaveButton.Location = new System.Drawing.Point(5, 353);
             this.documentTabSaveButton.Name = "documentTabSaveButton";
             this.documentTabSaveButton.Size = new System.Drawing.Size(201, 23);
             this.documentTabSaveButton.TabIndex = 3;
             this.documentTabSaveButton.Text = "Сохранить";
             this.documentTabSaveButton.UseVisualStyleBackColor = true;
+            this.documentTabSaveButton.Click += new System.EventHandler(this.DocumentTabSaveButtonClick);
             // 
             // documentTabCancellButton
             // 
@@ -550,10 +511,11 @@
             // pageTabPanel
             // 
             this.pageTabPanel.Controls.Add(this.groupBox3);
-            this.pageTabPanel.Controls.Add(this.button1);
-            this.pageTabPanel.Controls.Add(this.pageEditGroupBox);
-            this.pageTabPanel.Controls.Add(this.savePageButton);
             this.pageTabPanel.Controls.Add(this.cacelSavePageButton);
+            this.pageTabPanel.Controls.Add(this.createPageButton);
+            this.pageTabPanel.Controls.Add(this.savePageButton);
+            this.pageTabPanel.Controls.Add(this.deletePageButton);
+            this.pageTabPanel.Controls.Add(this.pageEditGroupBox);
             this.pageTabPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pageTabPanel.Enabled = false;
             this.pageTabPanel.Location = new System.Drawing.Point(3, 3);
@@ -570,8 +532,8 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(5, 5, 5, 6);
-            this.groupBox3.Size = new System.Drawing.Size(201, 214);
-            this.groupBox3.TabIndex = 14;
+            this.groupBox3.Size = new System.Drawing.Size(201, 191);
+            this.groupBox3.TabIndex = 24;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Список страниц";
             // 
@@ -582,20 +544,55 @@
             this.pageListBox.Location = new System.Drawing.Point(5, 18);
             this.pageListBox.Margin = new System.Windows.Forms.Padding(10);
             this.pageListBox.Name = "pageListBox";
-            this.pageListBox.Size = new System.Drawing.Size(191, 190);
+            this.pageListBox.Size = new System.Drawing.Size(191, 167);
             this.pageListBox.TabIndex = 1;
             this.pageListBox.DoubleClick += new System.EventHandler(this.PageListBoxDoubleClick);
             // 
-            // button1
+            // cacelSavePageButton
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(5, 330);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(201, 23);
-            this.button1.TabIndex = 12;
-            this.button1.Text = "Создать";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1Click);
+            this.cacelSavePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.cacelSavePageButton.Enabled = false;
+            this.cacelSavePageButton.Location = new System.Drawing.Point(5, 307);
+            this.cacelSavePageButton.Name = "cacelSavePageButton";
+            this.cacelSavePageButton.Size = new System.Drawing.Size(201, 23);
+            this.cacelSavePageButton.TabIndex = 23;
+            this.cacelSavePageButton.Text = "Отмена";
+            this.cacelSavePageButton.UseVisualStyleBackColor = true;
+            this.cacelSavePageButton.Click += new System.EventHandler(this.CacelSavePageButtonClick);
+            // 
+            // createPageButton
+            // 
+            this.createPageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.createPageButton.Location = new System.Drawing.Point(5, 330);
+            this.createPageButton.Name = "createPageButton";
+            this.createPageButton.Size = new System.Drawing.Size(201, 23);
+            this.createPageButton.TabIndex = 22;
+            this.createPageButton.Text = "Создать";
+            this.createPageButton.UseVisualStyleBackColor = true;
+            this.createPageButton.Click += new System.EventHandler(this.CreatePageButtonClick);
+            // 
+            // savePageButton
+            // 
+            this.savePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.savePageButton.Enabled = false;
+            this.savePageButton.Location = new System.Drawing.Point(5, 353);
+            this.savePageButton.Name = "savePageButton";
+            this.savePageButton.Size = new System.Drawing.Size(201, 23);
+            this.savePageButton.TabIndex = 20;
+            this.savePageButton.Text = "Сохранить";
+            this.savePageButton.UseVisualStyleBackColor = true;
+            this.savePageButton.Click += new System.EventHandler(this.SavePageButtonClick);
+            // 
+            // deletePageButton
+            // 
+            this.deletePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.deletePageButton.Location = new System.Drawing.Point(5, 376);
+            this.deletePageButton.Name = "deletePageButton";
+            this.deletePageButton.Size = new System.Drawing.Size(201, 23);
+            this.deletePageButton.TabIndex = 16;
+            this.deletePageButton.Text = "Удалить";
+            this.deletePageButton.UseVisualStyleBackColor = true;
+            this.deletePageButton.Click += new System.EventHandler(this.DeletePageButtonClick);
             // 
             // pageEditGroupBox
             // 
@@ -650,29 +647,6 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "Номер страницы:";
             // 
-            // savePageButton
-            // 
-            this.savePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.savePageButton.Location = new System.Drawing.Point(5, 353);
-            this.savePageButton.Name = "savePageButton";
-            this.savePageButton.Size = new System.Drawing.Size(201, 23);
-            this.savePageButton.TabIndex = 3;
-            this.savePageButton.Text = "Сохранить";
-            this.savePageButton.UseVisualStyleBackColor = true;
-            this.savePageButton.Click += new System.EventHandler(this.SavePageButtonClick);
-            // 
-            // cacelSavePageButton
-            // 
-            this.cacelSavePageButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.cacelSavePageButton.Enabled = false;
-            this.cacelSavePageButton.Location = new System.Drawing.Point(5, 376);
-            this.cacelSavePageButton.Name = "cacelSavePageButton";
-            this.cacelSavePageButton.Size = new System.Drawing.Size(201, 23);
-            this.cacelSavePageButton.TabIndex = 2;
-            this.cacelSavePageButton.Text = "Отмена";
-            this.cacelSavePageButton.UseVisualStyleBackColor = true;
-            this.cacelSavePageButton.Click += new System.EventHandler(this.CacelSavePageButtonClick);
-            // 
             // linePage
             // 
             this.linePage.Controls.Add(this.lineTabPanel);
@@ -686,9 +660,10 @@
             // lineTabPanel
             // 
             this.lineTabPanel.Controls.Add(this.groupBox4);
+            this.lineTabPanel.Controls.Add(this.cancellLineButton);
+            this.lineTabPanel.Controls.Add(this.saveLineButton);
             this.lineTabPanel.Controls.Add(this.lineEditGroupBox);
-            this.lineTabPanel.Controls.Add(this.button5);
-            this.lineTabPanel.Controls.Add(this.button6);
+            this.lineTabPanel.Controls.Add(this.deleteLineButton);
             this.lineTabPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lineTabPanel.Enabled = false;
             this.lineTabPanel.Location = new System.Drawing.Point(0, 0);
@@ -706,8 +681,8 @@
             this.groupBox4.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(5, 5, 5, 6);
-            this.groupBox4.Size = new System.Drawing.Size(201, 237);
-            this.groupBox4.TabIndex = 14;
+            this.groupBox4.Size = new System.Drawing.Size(201, 214);
+            this.groupBox4.TabIndex = 19;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Список строк";
             // 
@@ -718,12 +693,36 @@
             this.lineListBox.Location = new System.Drawing.Point(5, 18);
             this.lineListBox.Margin = new System.Windows.Forms.Padding(10);
             this.lineListBox.Name = "lineListBox";
-            this.lineListBox.Size = new System.Drawing.Size(191, 213);
-            this.lineListBox.TabIndex = 1;
+            this.lineListBox.Size = new System.Drawing.Size(191, 190);
+            this.lineListBox.TabIndex = 2;
+            // 
+            // cancellLineButton
+            // 
+            this.cancellLineButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.cancellLineButton.Enabled = false;
+            this.cancellLineButton.Location = new System.Drawing.Point(8, 333);
+            this.cancellLineButton.Name = "cancellLineButton";
+            this.cancellLineButton.Size = new System.Drawing.Size(201, 23);
+            this.cancellLineButton.TabIndex = 18;
+            this.cancellLineButton.Text = "Отмена";
+            this.cancellLineButton.UseVisualStyleBackColor = true;
+            this.cancellLineButton.Click += new System.EventHandler(this.CancellLineButtonClick);
+            // 
+            // saveLineButton
+            // 
+            this.saveLineButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.saveLineButton.Enabled = false;
+            this.saveLineButton.Location = new System.Drawing.Point(8, 356);
+            this.saveLineButton.Name = "saveLineButton";
+            this.saveLineButton.Size = new System.Drawing.Size(201, 23);
+            this.saveLineButton.TabIndex = 17;
+            this.saveLineButton.Text = "Сохранить";
+            this.saveLineButton.UseVisualStyleBackColor = true;
+            this.saveLineButton.Click += new System.EventHandler(this.SaveLineButtonClick);
             // 
             // lineEditGroupBox
             // 
-            this.lineEditGroupBox.Controls.Add(this.numericUpDown2);
+            this.lineEditGroupBox.Controls.Add(this.lineNumberNumeric);
             this.lineEditGroupBox.Controls.Add(this.wordCountLink);
             this.lineEditGroupBox.Controls.Add(this.label4);
             this.lineEditGroupBox.Controls.Add(this.label5);
@@ -736,12 +735,13 @@
             this.lineEditGroupBox.TabStop = false;
             this.lineEditGroupBox.Text = "Выбранная строка";
             // 
-            // numericUpDown2
+            // lineNumberNumeric
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(42, 45);
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown2.TabIndex = 13;
+            this.lineNumberNumeric.Location = new System.Drawing.Point(42, 45);
+            this.lineNumberNumeric.Name = "lineNumberNumeric";
+            this.lineNumberNumeric.Size = new System.Drawing.Size(120, 20);
+            this.lineNumberNumeric.TabIndex = 13;
+            this.lineNumberNumeric.ValueChanged += new System.EventHandler(this.LineNumberNumericValueChanged);
             // 
             // wordCountLink
             // 
@@ -773,25 +773,16 @@
             this.label5.TabIndex = 9;
             this.label5.Text = "Номер строки:";
             // 
-            // button5
+            // deleteLineButton
             // 
-            this.button5.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button5.Location = new System.Drawing.Point(8, 356);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(201, 23);
-            this.button5.TabIndex = 3;
-            this.button5.Text = "Сохранить";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
-            // button6
-            // 
-            this.button6.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button6.Location = new System.Drawing.Point(8, 379);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(201, 23);
-            this.button6.TabIndex = 2;
-            this.button6.Text = "Отмена";
-            this.button6.UseVisualStyleBackColor = true;
+            this.deleteLineButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.deleteLineButton.Location = new System.Drawing.Point(8, 379);
+            this.deleteLineButton.Name = "deleteLineButton";
+            this.deleteLineButton.Size = new System.Drawing.Size(201, 23);
+            this.deleteLineButton.TabIndex = 2;
+            this.deleteLineButton.Text = "Удалить";
+            this.deleteLineButton.UseVisualStyleBackColor = true;
+            this.deleteLineButton.Click += new System.EventHandler(this.DeleteLineButtonClick);
             // 
             // wordPage
             // 
@@ -806,9 +797,10 @@
             // wordTabPanel
             // 
             this.wordTabPanel.Controls.Add(this.groupBox6);
+            this.wordTabPanel.Controls.Add(this.cancellWordButton);
+            this.wordTabPanel.Controls.Add(this.saveWordButton);
             this.wordTabPanel.Controls.Add(this.wordEditGroupBox);
-            this.wordTabPanel.Controls.Add(this.button8);
-            this.wordTabPanel.Controls.Add(this.button9);
+            this.wordTabPanel.Controls.Add(this.deleteWordButton);
             this.wordTabPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wordTabPanel.Enabled = false;
             this.wordTabPanel.Location = new System.Drawing.Point(0, 0);
@@ -826,8 +818,8 @@
             this.groupBox6.Margin = new System.Windows.Forms.Padding(3, 3, 3, 5);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Padding = new System.Windows.Forms.Padding(5, 5, 5, 6);
-            this.groupBox6.Size = new System.Drawing.Size(201, 237);
-            this.groupBox6.TabIndex = 14;
+            this.groupBox6.Size = new System.Drawing.Size(201, 214);
+            this.groupBox6.TabIndex = 18;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Список слов";
             // 
@@ -838,14 +830,39 @@
             this.wordList.Location = new System.Drawing.Point(5, 18);
             this.wordList.Margin = new System.Windows.Forms.Padding(10);
             this.wordList.Name = "wordList";
-            this.wordList.Size = new System.Drawing.Size(191, 213);
+            this.wordList.Size = new System.Drawing.Size(191, 190);
             this.wordList.TabIndex = 1;
+            this.wordList.SelectedIndexChanged += new System.EventHandler(this.WordListSelectedIndexChanged);
+            // 
+            // cancellWordButton
+            // 
+            this.cancellWordButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.cancellWordButton.Enabled = false;
+            this.cancellWordButton.Location = new System.Drawing.Point(8, 333);
+            this.cancellWordButton.Name = "cancellWordButton";
+            this.cancellWordButton.Size = new System.Drawing.Size(201, 23);
+            this.cancellWordButton.TabIndex = 17;
+            this.cancellWordButton.Text = "Отмена";
+            this.cancellWordButton.UseVisualStyleBackColor = true;
+            this.cancellWordButton.Click += new System.EventHandler(this.CancellWordButtonClick);
+            // 
+            // saveWordButton
+            // 
+            this.saveWordButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.saveWordButton.Enabled = false;
+            this.saveWordButton.Location = new System.Drawing.Point(8, 356);
+            this.saveWordButton.Name = "saveWordButton";
+            this.saveWordButton.Size = new System.Drawing.Size(201, 23);
+            this.saveWordButton.TabIndex = 15;
+            this.saveWordButton.Text = "Сохранить";
+            this.saveWordButton.UseVisualStyleBackColor = true;
+            this.saveWordButton.Click += new System.EventHandler(this.SaveWordButtonClick);
             // 
             // wordEditGroupBox
             // 
             this.wordEditGroupBox.Controls.Add(this.label6);
-            this.wordEditGroupBox.Controls.Add(this.textBox1);
-            this.wordEditGroupBox.Controls.Add(this.numericUpDown3);
+            this.wordEditGroupBox.Controls.Add(this.wordNameBox);
+            this.wordEditGroupBox.Controls.Add(this.wordNumberNumeric);
             this.wordEditGroupBox.Controls.Add(this.label7);
             this.wordEditGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.wordEditGroupBox.Location = new System.Drawing.Point(8, 8);
@@ -865,19 +882,21 @@
             this.label6.TabIndex = 15;
             this.label6.Text = "Само слово:";
             // 
-            // textBox1
+            // wordNameBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(42, 74);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(120, 20);
-            this.textBox1.TabIndex = 14;
+            this.wordNameBox.Location = new System.Drawing.Point(42, 74);
+            this.wordNameBox.Name = "wordNameBox";
+            this.wordNameBox.Size = new System.Drawing.Size(120, 20);
+            this.wordNameBox.TabIndex = 14;
+            this.wordNameBox.TextChanged += new System.EventHandler(this.WordNameBoxTextChanged);
             // 
-            // numericUpDown3
+            // wordNumberNumeric
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point(42, 33);
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDown3.TabIndex = 13;
+            this.wordNumberNumeric.Location = new System.Drawing.Point(42, 33);
+            this.wordNumberNumeric.Name = "wordNumberNumeric";
+            this.wordNumberNumeric.Size = new System.Drawing.Size(120, 20);
+            this.wordNumberNumeric.TabIndex = 13;
+            this.wordNumberNumeric.ValueChanged += new System.EventHandler(this.WordNumberNumericValueChanged);
             // 
             // label7
             // 
@@ -888,25 +907,22 @@
             this.label7.TabIndex = 9;
             this.label7.Text = "Номер слова:";
             // 
-            // button8
+            // deleteWordButton
             // 
-            this.button8.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button8.Location = new System.Drawing.Point(8, 356);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(201, 23);
-            this.button8.TabIndex = 3;
-            this.button8.Text = "Сохранить";
-            this.button8.UseVisualStyleBackColor = true;
+            this.deleteWordButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.deleteWordButton.Location = new System.Drawing.Point(8, 379);
+            this.deleteWordButton.Name = "deleteWordButton";
+            this.deleteWordButton.Size = new System.Drawing.Size(201, 23);
+            this.deleteWordButton.TabIndex = 3;
+            this.deleteWordButton.Text = "Удалить";
+            this.deleteWordButton.UseVisualStyleBackColor = true;
+            this.deleteWordButton.Click += new System.EventHandler(this.DeleteWordButtonClick);
             // 
-            // button9
+            // pageTextGenerator
             // 
-            this.button9.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button9.Location = new System.Drawing.Point(8, 379);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(201, 23);
-            this.button9.TabIndex = 2;
-            this.button9.Text = "Отмена";
-            this.button9.UseVisualStyleBackColor = true;
+            this.pageTextGenerator.Name = "pageTextGenerator";
+            this.pageTextGenerator.Size = new System.Drawing.Size(161, 22);
+            this.pageTextGenerator.Text = "Текст страницы";
             // 
             // Redactor
             // 
@@ -920,6 +936,7 @@
             this.DoubleBuffered = true;
             this.MainMenuStrip = this.MainMenu;
             this.Name = "Redactor";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Redactor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RedactorFormClosing);
             this.Load += new System.EventHandler(this.RedactorLoad);
@@ -951,13 +968,13 @@
             this.groupBox4.ResumeLayout(false);
             this.lineEditGroupBox.ResumeLayout(false);
             this.lineEditGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lineNumberNumeric)).EndInit();
             this.wordPage.ResumeLayout(false);
             this.wordTabPanel.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
             this.wordEditGroupBox.ResumeLayout(false);
             this.wordEditGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wordNumberNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -978,7 +995,6 @@
         private System.Windows.Forms.ToolStripMenuItem PageMenu;
         private System.Windows.Forms.ToolStripMenuItem OpenPageMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CreatePageMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem loadImageMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DeletePageMenuItem;
         private System.Windows.Forms.ToolStripButton moveModeButton;
         private System.Windows.Forms.ToolStripButton createMoveButton;
@@ -991,12 +1007,6 @@
         private System.Windows.Forms.TabPage pagePage;
         private System.Windows.Forms.TabPage linePage;
         private System.Windows.Forms.TabPage wordPage;
-        private System.Windows.Forms.ToolStripMenuItem scaleMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem maxScaleMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem mediumScaleToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem lowScaleToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem smallerScaleToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem smallestScaleToolStripMenuItem;
         private System.Windows.Forms.Panel documentEditPanel;
         private System.Windows.Forms.TextBox documentNameInputBox;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -1007,38 +1017,43 @@
         private System.Windows.Forms.Button documentTabCancellButton;
         private System.Windows.Forms.Button documentTabCreateButton;
         private System.Windows.Forms.Panel pageTabPanel;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox pageEditGroupBox;
         private System.Windows.Forms.NumericUpDown pageNumberNumeric;
         private System.Windows.Forms.LinkLabel linesCountsLink;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button savePageButton;
-        private System.Windows.Forms.Button cacelSavePageButton;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.ListBox pageListBox;
         private System.Windows.Forms.Panel lineTabPanel;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.ListBox lineListBox;
         private System.Windows.Forms.GroupBox lineEditGroupBox;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown lineNumberNumeric;
         private System.Windows.Forms.LinkLabel wordCountLink;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button deleteLineButton;
         private System.Windows.Forms.Panel wordTabPanel;
-        private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.ListBox wordList;
         private System.Windows.Forms.GroupBox wordEditGroupBox;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
+        private System.Windows.Forms.NumericUpDown wordNumberNumeric;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Button deleteWordButton;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox wordNameBox;
         private System.Windows.Forms.Panel centeredInterfaceHolderPanel;
         private System.Windows.Forms.PictureBox interfaceBox;
         private System.Windows.Forms.Panel interfaceScrollContainer;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.ListBox lineListBox;
+        private System.Windows.Forms.Button cancellLineButton;
+        private System.Windows.Forms.Button saveLineButton;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ListBox pageListBox;
+        private System.Windows.Forms.Button cacelSavePageButton;
+        private System.Windows.Forms.Button createPageButton;
+        private System.Windows.Forms.Button savePageButton;
+        private System.Windows.Forms.Button deletePageButton;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.ListBox wordList;
+        private System.Windows.Forms.Button cancellWordButton;
+        private System.Windows.Forms.Button saveWordButton;
+        private System.Windows.Forms.ToolStripMenuItem openDictionaryMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pageTextGenerator;
     }
 }
